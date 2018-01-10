@@ -1,0 +1,22 @@
+{
+  "name": "socketiotest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "hueServer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chart.js": "^2.7.1",
+    "ds18x20": "^0.2.0",
+    "mongodb": "^3.0.1",
+    "node-hue-api": "^2.4.2",
+    "nodemon": "^1.14.6",
+    "onoff": "^1.1.8",
+    "raspicam": "^0.2.14",
+    "socket.io": "^2.0.4"
+  }
+}
