@@ -1,0 +1,260 @@
+ <!DOCTYPE html>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<title>Control Hub</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!-- Latest compiled and minified CSS -->
+<!-- Latest compiled JavaScript -->
+<style>
+
+html {
+background: beige;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 15px;
+  border-radius: 5px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {opacity: 1;}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
+
+
+}
+
+.deviceControl {
+  margin: 5px;
+  width: 15%;
+  height: 30px;
+  border: solid 2px black;
+  background: grey;
+  display: inline-block;
+  text-align: center;
+}
+
+.activeLight {
+  background: blue;
+  border: solid 2px grey;
+}
+
+#redSlider::-webkit-slider-thumb {background: red;}
+#redSlider::-moz-range-thumb {background: red;}
+#greenSlider::-webkit-slider-thumb {background: green;}
+#greenSlider::-moz-range-thumb {background: green;}
+#blueSlider::-webkit-slider-thumb {background: blue;}
+#blueSlider::-moz-range-thumb {background: blue;}
+#brightSlider::-webkit-slider-thumb {background: grey;}
+#brightSlider::-moz-range-thumb {background: grey;}
+</style>
+
+<body>
+<div class="w3-container">
+<h1>Control Hub:</h1>
+<div class="w3-cell-row">
+<div class="w3-container w3-cell w3-mobile">
+<form class="w3-container">
+
+<label><h3>Lights</h3></label>
+  <div class="deviceContainer" style="padding: 10px; width: 100%; min-height: 10px;">
+    <div class="col deviceControl activeLight" data=3>Bedrooom Light</div>
+    <div class="col deviceControl" data=4>Bedside Lamp</div>
+    <div class="col deviceControl" data=1>Bathroom</div>
+  </div>
+</form>
+<p><input type="range" min="0" max="255" value="0255" class="slider" id="redSlider"></p>
+<p><input type="range" min="0" max="255" value="255" class="slider" id="greenSlider"></p>
+<p><input type="range" min="0" max="255" value="255" class="slider" id="blueSlider"></p>
+<p><input type="range" min="0" max="100" value="100" class="slider" id="brightSlider"></p>
+</div>
+<div class="w3-container w3-cell w3-mobile" style="background-color:black" id="colorShow">
+<div></div>
+</div>
+</div>
+<p>Or pick a color: <input type="color" id="pickColor"></p>
+</div>
+<div class="submit" style="width: 50px; height: 50px; background: red;">SUBMIT</div>
+<p id="PiTemp"></p>
+<p id="RoomTemp"></p>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+<script src="https://www.w3schools.com/lib/w3color.js"></script>
+<script>
+
+var socket = io(); //load socket.io-client and connect to the host that serves the page
+
+socket.on('piTemperatureUpdate', function(piTemp, roomTemp) {
+	document.getElementById("PiTemp").innerHTML = "Raspberry Pi Temp: "+piTemp;
+  document.getElementById("RoomTemp").innerHTML = "Room Temp: "+roomTemp;
+
+});
+
+socket.on('hueStatus', function(lightStatus) {
+  lightStatus = JSON.parse(lightStatus);
+  $("body").append(lightStatus);
+});
+
+
+var rgb = w3color("rgb(0,0,0)"); //we use the w3color.js library to keep the color as an object
+window.addEventListener("load", function(){ //when page loads
+  var rSlider = document.getElementById("redSlider");
+  var gSlider = document.getElementById("greenSlider");
+  var bSlider = document.getElementById("blueSlider");
+  var brightSlider = document.getElementById("brightSlider");
+  var picker = document.getElementById("pickColor");
+  var light = document.getElementById("light");
+
+
+var ctrlIsPressed;
+
+  $(document).keydown(function(event){
+    if(event.which=="17")
+        ctrlIsPressed = true;
+});
+
+
+$(".deviceControl").dblclick(function() {
+  if (rgb.lightness < 5) {
+    rgb.lightness = 100;
+  } else {
+    rgb.lightness = 0;
+  };
+  brightSlider.value = rgb.lightness;
+  socket.emit("rgbLed", rgb);
+
+});
+
+$(".deviceControl").mousedown(function() {
+  if(ctrlIsPressed != true) {
+    $(".deviceControl").removeClass("activeLight");
+  };
+  $(this).addClass("activeLight");
+  rgb.whiteness = $(this).attr("data");
+  socket.emit("rgbLed", rgb);
+});
+
+  $(".submit").click(function() {
+    socket.emit("rgbLed", rgb);
+  });
+
+  rSlider.addEventListener("change", function() { //add event listener for when red slider changes
+    rgb.red = this.value; //update the RED color according to the slider
+    colorShow.style.backgroundColor = rgb.toRgbString(); //update the "Current color"
+    //socket.emit("rgbLed", rgb); //send the updated color to RGB LED via WebSocket
+  });
+  gSlider.addEventListener("change", function() { //add event listener for when green slider changes
+    rgb.green = this.value; //update the GREEN color according to the slider
+    colorShow.style.backgroundColor = rgb.toRgbString(); //update the "Current color"
+    //socket.emit("rgbLed", rgb); //send the updated color to RGB LED via WebSocket
+  });
+  bSlider.addEventListener("change", function() { //add event listener for when blue slider changes
+    rgb.blue = this.value;  //update the BLUE color according to the slider
+    colorShow.style.backgroundColor = rgb.toRgbString(); //update the "Current color"
+    //socket.emit("rgbLed", rgb); //send the updated color to RGB LED via WebSocket
+  });
+  brightSlider.addEventListener("change", function() { //add event listener for when blue slider changes
+    rgb.lightness = this.value;  //update the BLUE color according to the slider
+    colorShow.style.backgroundColor = rgb.toRgbString(); //update the "Current color"
+    //socket.emit("rgbLed", rgb); //send the updated color to RGB LED via WebSocket
+  });
+  picker.addEventListener("input", function() { //add event listener for when colorpicker changes
+    rgb.red = w3color(this.value).red; //Update the RED color according to the picker
+    rgb.green = w3color(this.value).green; //Update the GREEN color according to the picker
+    rgb.blue = w3color(this.value).blue; //Update the BLUE color according to the picker
+    colorShow.style.backgroundColor = rgb.toRgbString();  //update the "Current color"
+    rSlider.value = rgb.red;  //Update the RED slider position according to the picker
+    gSlider.value = rgb.green;  //Update the GREEN slider position according to the picker
+    bSlider.value = rgb.blue;  //Update the BLUE slider position according to the picker
+   socket.emit("rgbLed", rgb);  //send the updated color to RGB LED via WebSocket
+  });
+});
+</script>
+
+<canvas id="myChart" width="400" height="400"></canvas>
+<script>
+/*var ctx = document.getElementById("myChart");
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+        datasets: [{
+            label: '# of Votes',
+            data: [12, 19, 3, 5, 2, 3],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                }
+            }]
+        }
+    }
+});*/
+var ctx = document.getElementById("myChart");
+Chart.defaults.global.hover.mode = 'nearest';
+
+// Hover mode is set to nearest because it was not overridden here
+var chartHoverModeNearest  = new Chart(ctx, {
+    type: 'line',
+    data: data,
+});
+
+// This chart would have the hover mode that was passed in
+var chartDifferentHoverMode = new Chart(ctx, {
+    type: 'line',
+    data: data,
+    options: {
+        hover: {
+            // Overrides the global setting
+            mode: 'index'
+        }
+    }
+})
+</script>
+</html>
+</body>
+</html>
+
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>

@@ -29,6 +29,10 @@ var displayResult = function(result) {
     console.log(JSON.stringify(result, null, 2));
 };
 
+var displayResult2 = function(result) {
+    console.log(result);
+};
+
 var host = "192.168.1.64",
     username = "8FNEwdPyoc9eVRxP7ukCnf4QFowMK2aoHOmBuJdi",
     api = new HueApi(host, username),
@@ -37,35 +41,41 @@ var host = "192.168.1.64",
 
 var lightStatus = [];
 
-/*var jsonTest = {"Test1":1,"Test2":2,};
+let getRGB = function() {
+  console.log("test");
+};
 
-console.log(jsonTest.Test2);*/
-
-api.lights(function(err, devices) {
+api.lights(function(err, devices, getRGB) {
     if (err) throw err;
     let lightsJSON = JSON.stringify(devices, null, 2);
     lightsJSON = JSON.parse(lightsJSON);
     lightsJSON = lightsJSON.lights;
     for (let i = 0; i < lightsJSON.length; i++) {
       if (lightsJSON[i].state.reachable) {
+        lightStatus.push(
+          {
+            "name":lightsJSON[i].name,
+            "type":lightsJSON[i].type,
+            "id":lightsJSON[i].id,
+            "state":{
+                      "on":lightsJSON[i].state.on,
+                      "brightness":lightsJSON[i].state.bri,
+                      "rgb":0,
+                    },
+          }
+        )
       };
   };
-  lightStatus =
-    {
-      "name":lightsJSON[1].name,
-      "type":lightsJSON[1].type,
-      "id":lightsJSON[1].id,
-      "state":{
-                "on":lightsJSON[1].state.on,
-                "bri":lightsJSON[1].state.bri,
-                "rgb":0,
-              },
 
-    };
-    lightStatus = {"name":"Jack"};
   console.log(lightStatus);
+
 });
 
+
+
+
+
+api.lights();
 
 
 http.listen(8081); //listen to port 8080
@@ -208,7 +218,7 @@ ds18x20.get("28-0316c2c8bbff", function(err, value) {
 
   }
 });
-}, 60000);
+}, 10000);
 
 io.sockets.on('connection', function (socket) {// Web Socket Connection
 
@@ -223,7 +233,7 @@ io.sockets.on('connection', function (socket) {// Web Socket Connection
 		};
 
 });
-}, 15000);
+}, 10000);
 
 //lightStatus = JSON.stringify(lightStatus);
 //socket.emit('hueStatus', lightStatus);
@@ -235,13 +245,12 @@ io.sockets.on('connection', function (socket) {// Web Socket Connection
 
   socket.on('rgbLed', function(data) { //get light switch status from client
     console.log(data); //output data from WebSocket connection to console
-
     //for common cathode RGB LED 0 is fully off, and 255 is fully on
     redRGB=parseInt(data.red);
     greenRGB=parseInt(data.green);
     blueRGB=parseInt(data.blue);
-    brightRGB=parseInt(data.lightness);
-    light=parseInt(data.whiteness);
+    brightRGB=parseInt(data.brightness);
+    device=parseInt(data.device);
 
 state = lightState.create().on().rgb(redRGB,greenRGB,blueRGB).brightness(brightRGB);
 
@@ -249,7 +258,7 @@ if (brightRGB <= 5) {
 	state = state.off();
 }
 
-api.setLightState(light, state);
+api.setLightState(device, state);
 
   });
 });
