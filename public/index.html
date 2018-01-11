@@ -15,6 +15,120 @@
 </head>
 <style>
 
+
+input[type=range] {
+  -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+  width: 100%; /* Specific width is required for Firefox. */
+  background: transparent; /* Otherwise white in Chrome */
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+}
+
+input[type=range]:focus {
+  outline: none; /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */
+}
+
+input[type=range]::-ms-track {
+  width: 100%;
+  cursor: pointer;
+
+  /* Hides the slider so custom styles can be added */
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+}
+
+/* Special styling for WebKit/Blink */
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  border: 1px solid #000000;
+  height: 36px;
+  width: 16px;
+  border-radius: 3px;
+  background: #ffffff;
+  cursor: pointer;
+  margin-top: -14px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
+}
+
+/* All the same stuff for Firefox */
+input[type=range]::-moz-range-thumb {
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  border: 1px solid #000000;
+  height: 36px;
+  width: 16px;
+  border-radius: 3px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+/* All the same stuff for IE */
+input[type=range]::-ms-thumb {
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  border: 1px solid #000000;
+  height: 36px;
+  width: 16px;
+  border-radius: 3px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8.4px;
+  cursor: pointer;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  background: #3071a9;
+  border-radius: 1.3px;
+  border: 0.2px solid #010101;
+}
+
+input[type=range]:focus::-webkit-slider-runnable-track {
+  background: #367ebd;
+}
+
+input[type=range]::-moz-range-track {
+  width: 100%;
+  height: 8.4px;
+  cursor: pointer;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  background: #3071a9;
+  border-radius: 1.3px;
+  border: 0.2px solid #010101;
+}
+
+input[type=range]::-ms-track {
+  width: 100%;
+  height: 8.4px;
+  cursor: pointer;
+  background: transparent;
+  border-color: transparent;
+  border-width: 16px 0;
+  color: transparent;
+}
+input[type=range]::-ms-fill-lower {
+  background: #2a6495;
+  border: 0.2px solid #010101;
+  border-radius: 2.6px;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+}
+input[type=range]:focus::-ms-fill-lower {
+  background: #3071a9;
+}
+input[type=range]::-ms-fill-upper {
+  background: #3071a9;
+  border: 0.2px solid #010101;
+  border-radius: 2.6px;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+}
+
+input[type=range]:focus::-ms-fill-upper {
+  background: #367ebd;
+}
+
+
 body {
 background: beige;
 }
@@ -24,6 +138,17 @@ background: beige;
   padding: 0;
 }
 
+.main-content {
+padding: 0 5%;
+}
+
+.header-bar {
+  background: white;
+  padding: 0 10px;
+  border-bottom: solid 1px black;
+  margin-bottom: 25px;
+}
+
 .device-container {
   padding: 10px;
   width: 100%;
@@ -31,16 +156,19 @@ background: beige;
 }
 
 .device {
-  background: skyblue;
-  border: solid 2px white;
   text-align: center;
+  margin: 5px 20px;
+  height: 25px;
 }
 
 .colour-swatch {
   background: green;
-  margin: 2%;
-  width: 96%;
-  height: 96%;
+  height: 80%;
+}
+
+.brightness-swatch {
+  height: 20%;
+  background: grey;
 }
 
 .colour-submit {
@@ -53,10 +181,45 @@ background: beige;
   display: block;
   margin: 5px;
 }
+
  *:hover {
-border: solid 1px grey;
+//border: solid 1px grey;
 }
+
 </style>
+
+<body>
+  <div class="container-fluid" ng-app="Angular">
+    <div class="row header-bar">
+    <h2>Control Hub:</h2>
+    </div>
+    <div class="row main-content" ng-controller="deviceCtrl">
+          <div class="col">
+        <div class="row">
+          <div class="col">
+            <div class="row">Lights</div>
+            <div class="row"><button ng-repeat="x in devices" ng-click="device = device + 1" class="col device" value="{{x}}"></button></div>
+          </div>
+        </div>
+        <div class="row device-container">
+          <input type="range" min="0" max="255" ng-model="red" class="slider" id="redSlider">
+          <input type="range" min="0" max="255" ng-model="green" class="slider" id="greenSlider">
+          <input type="range" min="0" max="255" ng-model="blue" class="slider" id="blueSlider">
+          <input type="text" ng-model="brightness"><input type="range" min="0" max="100" ng-model="brightness" class="slider" id="brightnessSlider">
+        </div>
+      </div>
+      <div class="col-sm-2">
+        <div class="colour-swatch row" style="background: rgb({{red}},{{green}},{{blue}});"></div>
+        <div class="brightness-swatch row" style="background: rgb({{brightness/100*255}},{{brightness/100*255}},{{brightness/100*255}});"></div>
+      </div>
+      <p>Current Device: {{device}}</p>
+    </div>
+  </div>
+  <p id="PiTemp"></p>
+  <p id="RoomTemp"></p>
+</body>
+</html>
+
 <script>
 var socket = io(); //load socket.io-client and connect to the host that serves the page
 
@@ -67,6 +230,10 @@ AngularApp.controller('deviceCtrl', function($scope) {
       $scope.green = 200;
       $scope.blue = 140;
       $scope.brightness = 80;
+      $scope.device = 3;
+      $scope.updateDevice = function() {
+
+      };
 });
 
 //window.addEventListener("load", function(){ //when page loads
@@ -90,13 +257,26 @@ $(".device").dblclick(function() {
 });
 
 
-  $(".device").click(function() {
-    $("body").append("hey");
-    let newDevice = $(this).attr("value");
-    $("body").append(newDevice);
-    rgb.device = newDevice;
-    socket.emit("rgbLed", rgb);
-  });
+  $(".device").on({
+    mouseenter: function() {
+        $(this).css("border-color","red");
+    },
+    mouseleave: function() {
+        $(this).css("border-color","white");
+    },
+    mousedown: function() {
+        $(this).css("border-color","blue");
+        let newDevice = $(this).attr("value");
+        rgb.device = newDevice;
+        socket.emit("rgbLed", rgb);
+    },
+    mouseup: function() {
+        $(this).css("border-color","white");
+    },
+});
+
+
+
 
   rSlider.addEventListener("change", function() { //add event listener for when red slider changes
     rgb.red = this.value; //update the RED color according to the slider
@@ -117,34 +297,14 @@ $(".device").dblclick(function() {
   });
 });
 
+$( function() {
+  $("devicesel").checkboxradio({
+    icon: false
+  });
+} );
+
 socket.on('piTemperatureUpdate', function(piTemp, roomTemp) {
 	document.getElementById("PiTemp").innerHTML = "Raspberry Pi Temp: "+piTemp;
   document.getElementById("RoomTemp").innerHTML = "Room Temp: "+roomTemp;
 });
 </script>
-<body>
-  <div class="container-fluid" ng-app="Angular">
-    <h1>Control Hub:</h1>
-    <div class="row" ng-controller="deviceCtrl">
-      <div class="col">
-        <div class="row">
-          <div class="col">
-            <div class="row">Lights</div>
-            <div class="row"><div class="col device" value="{{x}}" ng-repeat="x in devices" >{{x}}</div></div>
-          </div>
-        </div>
-        <div class="row device-container">
-          <input type="range" min="0" max="255" ng-model="red" class="slider" id="redSlider">
-          <input type="range" min="0" max="255" ng-model="green" class="slider" id="greenSlider">
-          <input type="range" min="0" max="255" ng-model="blue" class="slider" id="blueSlider">
-          <input type="range" min="0" max="100" ng-model="brightness" class="slider" id="brightnessSlider">
-        </div>
-      </div>
-      <div class="col-sm-2"><div id="swatch" style="background: rgb({{red}},{{green}},{{blue}}); height: 100%; padding: 10px;"></div></div>
-    </div>
-  </div>
-  <p id="PiTemp"></p>
-  <p id="RoomTemp"></p>
-</body>
-</body>
-</html>
