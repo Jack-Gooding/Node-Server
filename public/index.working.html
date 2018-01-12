@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <title>Homepage</title>
+ <title>Bootstrap Example</title>
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.6/umd/popper.min.js"></script>
@@ -139,43 +138,30 @@ background: beige;
   padding: 0;
 }
 
+.main-content {
+padding: 1% 1%;
+border: solid 1px black;
+margin: 0 5%
+}
+
 .header-bar {
   background: white;
   padding: 0 10px;
   border-bottom: solid 1px black;
+  margin-bottom: 25px;
 }
 
-.header-title, .header-menu, .header-hud, .header-quick-buttons {
-  position: relative;
-  top: 50%;
-  -webkit-transform: translateY(-50%);
-  -ms-transform: translateY(-50%);
-  transform: translateY(-50%);
+.device-container {
+  padding: 10px;
+  width: 100%;
+  min-height: 10px;
 }
 
-.main-content {
-padding: 1% 1%;
-border: solid 1px black;
-margin: 1% 5%
-}
-
-.settings-button {
-  position: absolute;
-  top:10px;
-  right: 10px;
-  transform: scale(2);
-}
 .device {
   text-align: center;
   margin: 5px 20px;
+  height: 25px;
 }
-
-
-.slider-container {
-  min-height: 10px;
-  padding: 0 1%;
-}
-
 
 .colour-swatch {
   background: green;
@@ -187,105 +173,53 @@ margin: 1% 5%
   background: grey;
 }
 
-.slider {
-  margin: 10px 0;
+.colour-submit {
+  width: 80px;
+  height: 30px;
 }
-#redSlider::-webkit-slider-runnable-track {
-  background: pink;
+
+.slider {
+  margin: 5px 0;
 }
 
  *:hover {
- //border: solid 1px grey;
+//border: solid 1px grey;
 }
-
-
-
-
-
 
 </style>
 
 <body>
   <div class="container-fluid" ng-app="Angular">
     <div class="row header-bar">
-    <div class="col-sm-2"><div class="header-menu"><h4><span class="fa fa-navicon"></span>&nbsp;Menu</h4></div></div>
+    <div class="col-sm-1"><p>Menu</p></div>
     <div class="col">
-      <h2 class="header-title">Control Hub</h2>
+      <h2>Control Hub:</h2>
     </div>
-    <div class="col-sm-3"><div class="header-quick-buttons"><span class="fa fa-camera" style="tranform: scale(2);"></span></div></div>
-    <div class="col-sm-3" style="height: 50px;"><p class="header-hud"><span id="PiTemp" class="fa fa-thermometer-3">Pi Temp: 40'C </span><br><span id="RoomTemp" 	class="fa fa-thermometer-1">Room Temp: 18'C</span></p></div>
+    <div class="col"></div>
     </div>
-    <div class="row main-content" ng-controller="hueCtrl" id="resizable">
-      <div class="col">
-        <div class="row"><h3>Phillips Hue Lights</h3><span class="fa fa-cog settings-button" data-toggle="modal" data-target="#hue-settings" ></span></div>
-        <div class="row">
+    <div class="row main-content" ng-controller="deviceCtrl">
           <div class="col">
         <div class="row">
           <div class="col">
-            <div class="row device-container"></div>
-            <div class="row device-box"><div ng-click="updateSliderUI(deviceName, $index)" ng-dblclick="dblclickOnOff($index)" class="col device" ng-repeat="deviceName in devices" style="background:{{deviceName.state.rgb}}; color: rgb({{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[0]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[1]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[2]}})"><div style="margin: 0 10%;">{{deviceName.name}}</div><div style="position: absolute; top: 0; right: 0; width: 10%; height: 100%; background: rgb({{deviceName.state.brightness/100*255}},{{deviceName.state.brightness/100*255}},{{deviceName.state.brightness/100*255}});">{{deviceName.state.on}}</div></div></div>
+            <div class="row"><h3>Phillips Hue Lights</h3></div>
+            <div class="row"><div ng-click="updateSliderUI(deviceName, $index)" ng-dblclick="dblclickOnOff($index)" class="col device" ng-repeat="deviceName in devices" style="background:{{deviceName.state.rgb}}">{{deviceName.name}}</div></div>
           </div>
         </div>
-        <div class="row slider-container">
+        <div class="row device-container">
           <input type="range" min="0" max="255" ng-model="red" ng-change="colourUpdate()" class="slider" id="redSlider">
           <input type="range" min="0" max="255" ng-model="green" ng-change="colourUpdate()" class="slider" id="greenSlider">
           <input type="range" min="0" max="255" ng-model="blue" ng-change="colourUpdate()" class="slider" id="blueSlider">
           <input type="range" min="0" max="100" ng-model="brightness" ng-change="brightnessUpdate()" class="slider" id="brightnessSlider">
         </div>
-        <div class="row hue-advanced" ng-show="hueAdvanced">
-          <div class="col">
-            <div class="row">
-              <h4>Advanced</h4>
-            </div>
-            <div class="row">
-              <p>Colourloop: <input type="radio"/></p>
-            </div>
-          </div>
-        </div>
       </div>
-      <div class="col-sm-2" style="min-height: 50px;" ng-show="showSwatch">
-        <div class="colour-swatch row" style="background: rgb({{red}},{{green}},{{blue}});"><p ng-show="checkbox" style="text-align: centre; bottom: 0;">RGB({{red}},{{green}},{{blue}})</p></div>
-        <div class="brightness-swatch row" style="background: rgb({{brightness/100*255}},{{brightness/100*255}},{{brightness/100*255}});"><p ng-show="colourInfo" class="swatch-colour-info">{{brightness}}/100</p></div>
+      <div class="col-sm-2">
+        <div class="colour-swatch row" style="background: rgb({{red}},{{green}},{{blue}});"></div>
+        <div class="brightness-swatch row" style="background: rgb({{brightness/100*255}},{{brightness/100*255}},{{brightness/100*255}});"></div>
       </div>
-    </div>
-    </div>
-    <div class="modal fade" id="hue-settings">
-  <div class="modal-dialog">
-    <div class="modal-content">
-
-      <!-- Modal Header -->
-      <div class="modal-header">
-        <h4 class="modal-title">Phillips Hue Settings</h4>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>
-
-      <!-- Modal body -->
-      <div class="modal-body">
-        <p>Show Swatch: <input type="checkbox" ng-model="showSwatch"></p>
-        <p>Color Values: <input type="checkbox" ng-model="colourInfo"></p>
-        <p>Advanced Options: <input type="checkbox" ng-model="hueAdvanced"></p>
-      </div>
-
-      <!-- Modal footer -->
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-      </div>
-
     </div>
   </div>
-</div>
-  </div>
-    <div class="row main-content" ng-controller="rgbStripCtrl">
-      <h3>RGB Strips (soon)</h3>
-    </div>
-    <div class="row main-content" ng-controller="rgbStripCtrl">
-      <h3>Blind Motor (soon) </h3>
-    </div>
-    <div class="row main-content" ng-controller="rgbStripCtrl">
-      <h3>Desktop Control (soon) </h3>
-    </div>
-  </div>
-
+  <p id="PiTemp"></p>
+  <p id="RoomTemp"></p>
 </body>
 </html>
 
@@ -293,8 +227,7 @@ margin: 1% 5%
 var socket = io(); //load socket.io-client and connect to the host that serves the page
 
 var AngularApp = angular.module('Angular', []);
-
-AngularApp.controller('hueCtrl', function($scope) {
+AngularApp.controller('deviceCtrl', function($scope) {
       $scope.devices = [
         {"name":"Bathroom Light",
         "type":"Dimmable Colour",
@@ -342,13 +275,8 @@ AngularApp.controller('hueCtrl', function($scope) {
       $scope.dblclickOnOff = function(index) {
         if ($scope.devices[index].state.brightness < 5) {
           $scope.devices[index].state.brightness = 100;
-          $scope.devices[index].state.on = true;
-          $scope.brightness = 100;
         } else {
           $scope.devices[index].state.brightness = 0;
-          $scope.brightness = 0;
-          $scope.devices[index].state.on = false;
-
         };
         socket.emit("rgbLed", rgb);
       };
@@ -359,10 +287,6 @@ AngularApp.controller('hueCtrl', function($scope) {
       $scope.brightnessUpdate = function() {
         $scope.devices[$scope.deviceIndex].state.brightness = $scope.brightness;
       }
-
-      $scope.showSwatch = true;
-      $scope.hueAdvanced = false;
-      $scope.colourInfo = false;
 });
 
 //window.addEventListener("load", function(){ //when page loads
@@ -376,10 +300,10 @@ $(document).ready(function() {
 
   $(".device").on({
     mouseenter: function() {
-        $(this).css("transform","translateY(-1px)");
+        $(this).css("border-color","red");
     },
     mouseleave: function() {
-        $(this).css("transform","translateY(0px)");
+        $(this).css("border-color","white");
     },
     mousedown: function() {
         $(this).css("border-color","blue");
@@ -391,17 +315,6 @@ $(document).ready(function() {
         $(this).css("border-color","white");
     },
 });
-
-$( function() {
-  $( "#resizable" ).resizable({
-    minHeight: 300,
-    handles: 's',
-stop: function(event, ui) {
-    $(this).css("width", '');
-}
-  });
-
-} );
 
 /*
   rSlider.addEventListener("change", function() { //add event listener for when red slider changes
@@ -425,7 +338,7 @@ stop: function(event, ui) {
   */
 });
 socket.on('piTemperatureUpdate', function(piTemp, roomTemp) {
-	document.getElementById("PiTemp").innerHTML = "Pi Temp: "+piTemp;
+	document.getElementById("PiTemp").innerHTML = "Raspberry Pi Temp: "+piTemp;
   document.getElementById("RoomTemp").innerHTML = "Room Temp: "+roomTemp;
 });
 </script>
