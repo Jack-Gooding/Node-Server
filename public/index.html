@@ -292,12 +292,17 @@ margin: 1% 5%
 <script>
 var socket = io(); //load socket.io-client and connect to the host that serves the page
 
+var rgbDevice = [{"state":{"brightness":35},},{"state":{"brightness":35},},{"state":{"brightness":35},},];
+var tempDevice = [];
+
+
 var AngularApp = angular.module('Angular', []);
 
+var extScope;
 AngularApp.controller('hueCtrl', function($scope) {
       $scope.devices = [
         {"name":"Bathroom Light",
-        "type":"Dimmable Colour",
+        "type":"Dimmable light",
         "id": "1",
         "state": {
           "on":true,
@@ -306,7 +311,7 @@ AngularApp.controller('hueCtrl', function($scope) {
         },
         },
         {"name":"Bedroom Light",
-        "type":"Dimmable Colour",
+        "type":"Extended color light",
         "id":"3",
         "state": {
           "on":true,
@@ -315,11 +320,11 @@ AngularApp.controller('hueCtrl', function($scope) {
         },
         },
         {"name":"Bedside Lamp",
-        "type":"Dimmable Colour",
+        "type":"Extended color light",
         "id":"4",
         "state": {
           "on":true,
-          "brightness":70,
+          "brightness":80,
           "rgb":"rgb(200,240,140)",
         },
         },
@@ -338,6 +343,8 @@ AngularApp.controller('hueCtrl', function($scope) {
         $scope.blue = parseInt(rgb[2], 10);
         $scope.brightness = deviceName.state.brightness;
         $scope.deviceIndex = index;
+        rgbDevice = $scope.devices;
+        socket.emit("rgbLed", rgbDevice);
       };
       $scope.dblclickOnOff = function(index) {
         if ($scope.devices[index].state.brightness < 5) {
@@ -363,6 +370,32 @@ AngularApp.controller('hueCtrl', function($scope) {
       $scope.showSwatch = true;
       $scope.hueAdvanced = false;
       $scope.colourInfo = false;
+      extScope = $scope;
+});
+
+socket.on('hueLights', function(data) {
+  tempDevice = JSON.stringify(data);
+  $("html").append(JSON.parse(tempDevice).length);
+  //$("html").append(JSON.parse(tempDevice)[2].state.rgb);
+  for (let i = 0; i < JSON.parse(tempDevice).length; i++) {
+    extScope.$apply(function(){
+      extScope.devices[i].state.brightness = JSON.parse(tempDevice)[i].state.brightness;
+      extScope.brightness = JSON.parse(tempDevice)[extScope.deviceIndex].state.brightness;
+
+      //$("html").append(JSON.parse(tempDevice)[i].state.rgb.split('(')[1].split(')')[0].split(',')[1]);
+      let getrgb = JSON.parse(tempDevice)[i].state.rgb.split('(')[1].split(')')[0].split(',');
+      let red = getrgb[0];
+      let green = getrgb[1];
+      let blue = getrgb[2];
+      $("html").append("rgb("+red+","+green+","+blue+")");
+      extScope.devices[i].state.rgb = "rgb("+red+","+green+","+blue+")";
+      let givergb = JSON.parse(tempDevice)[extScope.deviceIndex].state.rgb.split('(')[1].split(')')[0].split(',');
+      extScope.red = parseInt(givergb[0]);
+      extScope.green = parseInt(givergb[1]);
+      extScope.blue = parseInt(givergb[2]);
+
+  });
+};
 });
 
 //window.addEventListener("load", function(){ //when page loads
@@ -423,9 +456,11 @@ stop: function(event, ui) {
   });
 
   */
+    $("html").append("data");
 });
 socket.on('piTemperatureUpdate', function(piTemp, roomTemp) {
 	document.getElementById("PiTemp").innerHTML = "Pi Temp: "+piTemp;
   document.getElementById("RoomTemp").innerHTML = "Room Temp: "+roomTemp;
 });
+
 </script>

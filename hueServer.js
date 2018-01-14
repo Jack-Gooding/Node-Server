@@ -46,6 +46,7 @@ let getRGB = function() {
 };
 
 api.lights(function(err, devices, getRGB) {
+    lightStatus = [];
     if (err) throw err;
     let lightsJSON = JSON.stringify(devices, null, 2);
     lightsJSON = JSON.parse(lightsJSON);
@@ -70,9 +71,36 @@ api.lights(function(err, devices, getRGB) {
   console.log(lightStatus);
 
 });
+/*
+setInterval(function() {
+  api.lights(function(err, devices, getRGB) {
+      lightStatus = [];
+      if (err) throw err;
+      let lightsJSON = JSON.stringify(devices, null, 2);
+      lightsJSON = JSON.parse(lightsJSON);
+      lightsJSON = lightsJSON.lights;
+      for (let i = 0; i < lightsJSON.length; i++) {
+        if (lightsJSON[i].state.reachable) {
+          lightStatus.push(
+            {
+              "name":lightsJSON[i].name,
+              "type":lightsJSON[i].type,
+              "id":lightsJSON[i].id,
+              "state":{
+                        "on":lightsJSON[i].state.on,
+                        "brightness":Math.floor((lightsJSON[i].state.bri / 254 * 100)),
+                        "rgb":"rgb(100,100,100)",
+                      },
+            }
+          )
+        };
+    };
 
+    console.log(lightStatus);
 
-
+  });
+},5000)
+*/
 
 
 api.lights();
@@ -205,7 +233,7 @@ ds18x20.get("28-0316c2c8bbff", function(err, value) {
   let timeNow = getTime();
   let timeDate = today+"_"+timeNow;
   roomTemps[timeDate] = value;
-  fs.appendFile("./tempLogging", value+"\n")
+  //fs.appendFile("./tempLogging", value+"\n")
   cRoomTemp = value;
   console.log("room temp = "+cRoomTemp);
 
@@ -231,6 +259,10 @@ io.sockets.on('connection', function (socket) {// Web Socket Connection
 		} else {
 			piFan.writeSync(0);
 		};
+    setTimeout(function() {
+
+    socket.emit("hueLights", lightStatus);
+  },1000);
 
 });
 }, 10000);
@@ -246,23 +278,30 @@ io.sockets.on('connection', function (socket) {// Web Socket Connection
   socket.on('rgbLed', function(data) { //get light switch status from client
     console.log(data); //output data from WebSocket connection to console
     //for common cathode RGB LED 0 is fully off, and 255 is fully on
-    redRGB=parseInt(data.red);
-    greenRGB=parseInt(data.green);
-    blueRGB=parseInt(data.blue);
-    brightRGB=parseInt(data.brightness);
-    device=parseInt(data.device);
 
-state = lightState.create().on().rgb(redRGB,greenRGB,blueRGB).brightness(brightRGB);
+  for (let i = 0; i< data.length; i++) {
+    rgb = data[i].state.rgb.split('(')[1].split(')')[0].split(',');
+    red=parseInt(rgb[0]);
+    green=parseInt(rgb[1]);
+    blue=parseInt(rgb[2]);
+    brightness=parseInt(data[i].state.brightness);
+    device=parseInt(data[i].id);
+    lightStatus[i].state.brightness = brightness;
+    lightStatus[i].state.rgb = "rgb("+red+","+green+","+blue+")";
+    state = lightState.create().on().rgb(red,green,blue).brightness(brightness);
+    console.log("Setting "+data[i].name+" to rgb("+red+","+green+","+blue+");");
 
-if (brightRGB <= 5) {
+/* if (brightness <= 5) {
 	state = state.off();
-}
+} */
 
-api.setLightState(device, state);
+
+
+  api.setLightState(device, state);
+  }
 
   });
-});
-
+  });
 //================//
 //==Close Handle==//
 //================//
