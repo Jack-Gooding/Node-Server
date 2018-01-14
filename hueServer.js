@@ -206,6 +206,15 @@ setInterval(function() {
 
 }, 1200000);
 
+let displayPhoto = function() {
+  //SORT THIS OUT
+};
+
+socket.on("takePhoto", function() {
+  takePhoto(displayPhoto);
+});
+
+
 //================//
 //==Temp Logging==//
 //================//
@@ -288,14 +297,18 @@ io.sockets.on('connection', function (socket) {// Web Socket Connection
     device=parseInt(data[i].id);
     lightStatus[i].state.brightness = brightness;
     lightStatus[i].state.rgb = "rgb("+red+","+green+","+blue+")";
-    state = lightState.create().on().rgb(red,green,blue).brightness(brightness);
-    console.log("Setting "+data[i].name+" to rgb("+red+","+green+","+blue+");");
+    lightStatus[i].state.on = data[i].state.on;
+    if (data[i].state.on) {
+      state = lightState.create().on().rgb(red,green,blue).brightness(brightness);
+      console.log("Setting "+data[i].name+" to rgb("+red+","+green+","+blue+").");
+    } else {
+      state = lightState.create().off();
+      console.log("Turning "+data[i].name+" off.")
+    };
 
-/* if (brightness <= 5) {
-	state = state.off();
-} */
-
-
+    if (brightness <= 5) {
+	     state = state.off();
+     };
 
   api.setLightState(device, state);
   }

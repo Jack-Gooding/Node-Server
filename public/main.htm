@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>main</title>
+</head>
+<body>
+<div class="row main-content"  id="resizable">
+  <div class="col">
+    <div class="row"><h3>Phillips Hue Lights</h3><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings" ></span></div>
+    <div class="row">
+      <div class="col">
+    <div class="row">
+      <div class="col">
+        <div class="row device-container"></div>
+        <div class="row device-box"><div ng-click="updateSliderUI(deviceName, $index)" ng-dblclick="dblclickOnOff($index)" class="col device" ng-repeat="deviceName in devices" style="-moz-user-select: none; height: 40px;background:{{deviceName.state.rgb}}; color: rgb({{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[0]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[1]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[2]}})"><div style="margin: 0 0;"><img src="./static/images/lightbulbOFF.ico" style="max-height: 20px; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); -moz-user-select: none;" ng-show="!=deviceName.state.on"><img ng-show="deviceName.state.on" src="./static/images/lightbulbON.ico" style="-moz-user-select: none;max-height: 20px; position: absolute; left: 10px; top: 50%; transform: translateY(-50%);"><p style="position: absolute;left: 50%; top: 50%; transform: translate(-50%,-50%);">{{deviceName.name}}</p></div><div style="position: absolute; top: 0; right: 0; width: 10%; height: 100%; background: rgb({{deviceName.state.brightness/100*255}},{{deviceName.state.brightness/100*255}},{{deviceName.state.brightness/100*255}});"></div></div></div>
+      </div>
+    </div>
+    <div class="row slider-container">
+      <input type="range" min="0" max="255" ng-model="red" ng-change="colourUpdate()" class="slider" id="redSlider">
+      <input type="range" min="0" max="255" ng-model="green" ng-change="colourUpdate()" class="slider" id="greenSlider">
+      <input type="range" min="0" max="255" ng-model="blue" ng-change="colourUpdate()" class="slider" id="blueSlider">
+      <input type="range" min="0" max="100" ng-model="brightness" ng-change="brightnessUpdate()" class="slider" id="brightnessSlider">
+    </div>
+    <div class="row hue-advanced" ng-show="hueAdvanced">
+      <div class="col">
+        <div class="row">
+          <h4>Advanced</h4>
+        </div>
+        <div class="row">
+          <p>Colourloop: <input type="radio"/></p>
+        </div>
+      </div>
+    </div>
+    <div class="row" ng-show="hueMostUsed">
+      <div class="col">
+        <div class="row frequent-colour-container">
+          <div class="col save-colour-block save-colour-active"><p class="save-colour-icon" style="font-weight: 900;" ng-click="colourSave()">+</p></div>
+          <div class="col save-colour-block"></div>
+          <div class="col save-colour-block"></div>
+          <div class="col save-colour-block"></div>
+          <div class="col save-colour-block"></div>
+          <div class="col save-colour-block"></div>
+          <div class="col randomise save-colour-block"><p>Randomise</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-2" style="min-height: 50px;" ng-show="showSwatch">
+    <div class="colour-swatch row" style="background: rgb({{red}},{{green}},{{blue}});"><p ng-show="checkbox" style="text-align: centre; bottom: 0;">RGB({{red}},{{green}},{{blue}})</p></div>
+    <div class="brightness-swatch row" style="background: rgb({{brightness/100*255}},{{brightness/100*255}},{{brightness/100*255}});"><p ng-show="colourInfo" class="swatch-colour-info">{{brightness}}/100</p></div>
+  </div>
+</div>
+</div>
+<div class="modal fade" id="hue-settings">
+<div class="modal-dialog">
+<div class="modal-content">
+
+  <!-- Modal Header -->
+  <div class="modal-header">
+    <h4 class="modal-title">Phillips Hue Settings</h4>
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+  </div>
+
+  <!-- Modal body -->
+  <div class="modal-body">
+    <p>Show Swatch: <input type="checkbox" ng-model="showSwatch"></p>
+    <p>Most Used: <input type="checkbox" ng-model="hueMostUsed"></p>
+    <p>Color Values: <input type="checkbox" ng-model="colourInfo"></p>
+    <p>Advanced Options: <input type="checkbox" ng-model="hueAdvanced"></p>
+  </div>
+
+  <!-- Modal footer -->
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+  </div>
+
+</div>
+</div>
+</div>
+</div>
+<div class="row main-content" ng-controller="rgbStripCtrl">
+  <h3>RGB Strips (soon)</h3>
+</div>
+<div class="row main-content" ng-controller="rgbStripCtrl">
+  <h3>Blind Motor (soon) </h3>
+</div>
+<div class="row main-content" ng-controller="rgbStripCtrl">
+  <h3>Desktop Control (soon) </h3>
+</div>
+</body>
+</html>

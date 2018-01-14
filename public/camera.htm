@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Monitoring</title>
+</head>
+<body>
+<div class="row main-content" ng-controller="rgbStripCtrl" style="height: 100%; position: relative;">
+  <div class="col">
+    <div class="row">
+  <h3>Camera</h3>
+  <div style="width: 100%; border-bottom: solid 1px black;">Recent Photos</div>
+</div>
+  <div class="row photo-container">
+    <div class="col" >
+        <img src="./static/images/billgates.jpeg">
+    </div>
+    <div class="col">
+      <img src="img.png">
+    </div>
+    <div class="col">
+      <img src="img.png">
+    </div>
+</div>
+</div>
+</div>
+</body>
+</html>
+<style>
+.main-content {
+  display: block;
+}
+
+.photo-container > .col {
+  margin: 0;
+  padding: 25px;
+}
+
+img {
+  width: 100%;
+  }
+
+  *:hover {
+    //border: solid 1px black;
+
+  }
+</style>
