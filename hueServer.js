@@ -242,10 +242,10 @@ let displayPhoto = function() {
 //==Room Temp==//
 
 let roomTemps = new Object();
-let cRoomTemp = 0;
+let cRoomTemp = 0
+
+
 setInterval(function() {
-
-
 
 let roomTemp;
 
@@ -274,11 +274,12 @@ ds18x20.get("28-0316c2c8bbff", function(err, value) {
 
   }
 });
+
 }, 10000);
 
 
 http.listen(8081, function(){
-  console.log('listening on *:3000');
+  console.log('listening on //RASPBERRYPI:8081');
 });
 
 process.on('SIGINT', function () { //on ctrl+c

@@ -13,9 +13,10 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js"></script>
-<script src="/socket.io/socket.io.js"></script></head>
-<style>
+<script src="https://cdn.socket.io/socket.io-1.0.0.js"></script>
+</head>
 
+<style>
 
 input[type=range] {
   -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
@@ -262,25 +263,62 @@ margin: 1% 5%
 .save-colour-block {
   margin: 0;
   padding: 0;
+  overflow: hidden;
+  -moz-user-select: none;
 }
 
-.save-colour-block > p {
+.save-colour-block > div {
   text-align: center;
-  display: absolute;
-  top: 50%;
-  transform: translateY(50%);
-  -moz-user-select: none;
+  position: absolute;
   width: 100%;
   height: 100%;
+  display: table;
 }
 
 .save-colour-icon {
-  display: absolute;
-  top: 50%;
-  transform: translateY(50%);
+  display: table-cell;
+  vertical-align: middle;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  transform: translateY(-8%);
+  font-size: 30px;
+  font-weight: 900;
 }
 
+.randomise p {
+  position: absolute;
+  text-align: center;
+  width: 100%;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  top:50%;
+  transform: translateY(-50%);
+}
 
+.save-colour-active {
+  cursor: pointer;
+}
+
+.remove-icon, .remove-icon-corner {
+  position: absolute;
+  font-size: 1.5em;
+  color: red;
+  top: -10px;
+  right: 0;
+  padding: 0;
+  margin: 0;
+  display: none;
+}
+
+.remove-icon-corner {
+  background: grey;
+  min-width: 40px;
+  min-height: 40px;
+  transform: rotate(30deg);
+  top:-42px;
+  right:-42px;
+}
 </style>
 
 <body>
@@ -290,12 +328,22 @@ margin: 1% 5%
     <div class="col" style="text-align: center;">
       <h2 class="header-title">Homepage</h2>
     </div>
-    <div class="col-sm-3"><div class="header-quick-buttons" style="position: absolute; right: 0;"><span class="fa fa-active fa-level-up" style="transform: scale(2); padding-right: 25px;"></span><span class="fa fa-active fa-camera" style="transform: scale(2);" onclick="takePhoto()"></span></div></div>
-    <div class="col-sm-3" style="height: 50px;"><p class="header-hud" style="position: absolute; right: 0;"><span id="PiTemp" class="fa fa-thermometer-3">Pi Temp: --'C </span><br><span id="RoomTemp" 	class="fa fa-thermometer-1">Room Temp: --'C</span></p></div>
+    <div class="col-sm-3">
+      <div class="header-quick-buttons" style="position: absolute; right: 0;">
+        <span class="fa fa-active fa-level-up blind-control-button" style="transform: scale(2); padding-right: 25px;" ondblclick="blindControl('up')"></span>
+        <span class="fa fa-active fa-camera" style="transform: scale(2);" onclick="takePhoto()"></span>
+      </div>
+    </div>
+    <div class="col-sm-3" style="height: 50px;">
+      <p class="header-hud" style="position: absolute; right: 10%;">
+        <span id="PiTemp" class="fa fa-thermometer-3">&nbsp;Pi Temp: {{piTemp}}'C </span><br>
+        <span id="RoomTemp" 	class="fa fa-thermometer-1">&nbsp;Room Temp: {{roomTemp}}'C</span>
+      </p>
+    </div>
     </div>
 
 
-    <div ng-view></div>
+    <ng-view></ng-view>
 
 
   <div id="mySidenav" class="sidenav">
@@ -303,13 +351,16 @@ margin: 1% 5%
   <a href="#!/" onclick="closeNav()">Control Hub</a>
   <a href="#!camera" onclick="closeNav()">Camera</a>
   <a href="#!monitor" onclick="closeNav()">Monitoring</a>
+  <br>
+  <br>
+  <a href="#!Idle Game">Idle Game</a>
 </div>
 </div>
 </body>
 </html>
-
 <script>
 var socket = io();//localhost'); //load socket.io-client and connect to the host that serves the page
+$("html").append("data");
 
 
 var rgbDevice = [{"state":{"brightness":35},},{"state":{"brightness":35},},{"state":{"brightness":35},},];
@@ -328,8 +379,20 @@ function closeNav() {
     document.getElementById("mySidenav").style.width = "0";
 }
 
+$(document).keydown(function(event){
+    if(event.which=="17")
+        ctrlIsPressed = true;
+});
+
+$(document).keyup(function(){
+    ctrlIsPressed = false;
+});
+
+var ctrlIsPressed = false;
+
+
 var extScope;
-AngularApp.controller('hueCtrl', function($scope) {
+AngularApp.controller('hueCtrl', function($scope, $compile) {
       $scope.devices = [
         {"name":"Bathroom Light",
         "type":"Dimmable light",
@@ -365,7 +428,7 @@ AngularApp.controller('hueCtrl', function($scope) {
       $scope.brightness = 80;
       $scope.device = 3;
       $scope.deviceIndex = 0;
-      $scope.updateSliderUI = function(deviceName, index) {
+      $scope.updateSliderUI = function(deviceName, index) { //Changes all sliders and Swatches to match the current device, pulled from devices.
         $scope.device = deviceName.id;
         let rgb = deviceName.state.rgb.split("(")[1].split(")")[0].split(",");
         $scope.red = parseInt(rgb[0], 10);
@@ -376,40 +439,96 @@ AngularApp.controller('hueCtrl', function($scope) {
         rgbDevice = $scope.devices;
         socket.emit("rgbLed", rgbDevice);
       };
-      $scope.dblclickOnOff = function(index) {
+      $scope.dblclickOnOff = function(index) {  // If a device is double clicked, toggle 'ON' status of lights.
         if ($scope.devices[index].state.on) {
-          //$scope.devices[index].state.brightness = 0;
-          //$scope.brightness = 0;
           $scope.devices[index].state.on = false;
           rgbDevice = $scope.devices;
-          socket.emit("rgbLed", rgbDevice);
         } else {
-          //$scope.devices[index].state.brightness = 100;
-          //$scope.brightness = 100;
           $scope.devices[index].state.on = true;
           rgbDevice = $scope.devices;
-          socket.emit("rgbLed", rgbDevice);
         };
-        //socket.emit("rgbLed", rgb);
-      };
-      $scope.colourUpdate = function() {
-        $scope.devices[$scope.deviceIndex].state.rgb = "rgb("+$scope.red+","+$scope.green+","+$scope.blue+")";
-      };
-      $scope.brightnessUpdate = function() {
-        $scope.devices[$scope.deviceIndex].state.brightness = $scope.brightness;
-      };
-      $scope.colourSave = function() {
-        $(".save-colour-active").css("background","rgb("+$scope.red+","+$scope.green+","+$scope.blue+")");
+        socket.emit("rgbLed", rgbDevice);
       };
 
+      $scope.colourUpdate = function(devices) { //OnChange for any RGB slider, update the Devices Object.
+        if (devices) {
+          for (let i = 0; i < devices.length; i++) {
+            $scope.devices[devices[i]].state.rgb = "rgb("+$scope.red+","+$scope.green+","+$scope.blue+")";
+          }
+        } else {
+        $scope.devices[$scope.deviceIndex].state.rgb = "rgb("+$scope.red+","+$scope.green+","+$scope.blue+")";
+      }
+      };
+
+      $scope.brightnessUpdate = function() { //OnChange for the Brightness slider, update the Devices Object.
+        $scope.devices[$scope.deviceIndex].state.brightness = $scope.brightness;
+      };
+      $scope.savedColourUpdate = function(red, green, blue) { // handles onClick even for saved colours
+        $scope.red = red;
+        $scope.green = green;
+        $scope.blue = blue;
+        if (ctrlIsPressed) {
+          $scope.colourUpdate([0,1,2]);
+        } else {
+          $scope.colourUpdate();
+        }
+      };
+      $scope.colourSave = function() {
+        $compile($(".save-colour-active")
+          .css("background","rgb("+$scope.red+","+$scope.green+","+$scope.blue+")")
+          .html('<div class="remove-icon-corner"></div><p class="remove-icon">&times;</p>')
+          .removeClass("save-colour-active").attr("ng-click","savedColourUpdate("+$scope.red+","+$scope.green+","+$scope.blue+")"))($scope);
+
+        $compile($(".save-colour-inactive:first")
+        .html('<div><p class="save-colour-icon" style="font-weight: 900;" ng-click="colourSave()">+</p></div>'))($scope)
+        .addClass("save-colour-active").removeClass("save-colour-inactive");
+
+        $(".save-colour-block").on({
+        	mouseenter: function() {   $(this).find($(".remove-icon, .remove-icon-corner")).show();   	},
+        	mouseleave: function() {   $(this).find($(".remove-icon, .remove-icon-corner")).hide();    	},
+        });
+
+        $(".remove-icon").on({
+        	mouseup: function() {
+            $(this).parent().parent().find(".randomise").before('<div class="col save-colour-block save-colour-inactive"></div>');
+        		$(this).css("color","red").parent().remove();
+            if ($(".save-colour-block").hasClass("save-colour-active")) {
+            } else {
+              $compile($(".save-colour-active").after('<div class="col save-colour-block save-colour-active"><div><p class="save-colour-icon" style="font-weight: 900;" ng-click="colourSave()">+</p></div></div>'))($scope);
+            }
+        	},
+        	mouseleave: function() {
+        		$(this).css("color","red");
+        	},
+        	mouseenter: function() {
+        		$(this).css("color","blue");
+        	},
+        });
+      };
+      $scope.randomiseColours = function() { //onclick function to Ranomise Colours button
+        $scope.red = Math.floor(Math.random()*255);
+        $scope.green = Math.floor(Math.random()*255);
+        $scope.blue = Math.floor(Math.random()*255);
+        $scope.colourUpdate();
+
+      };
+
+      //Declaring variables for use with Settings & ng-show
       $scope.showSwatch = true;
       $scope.hueAdvanced = false;
       $scope.colourInfo = false;
       $scope.hueMostUsed = true;
-      extScope = $scope;
+
+
+      $scope.piTemp = "--";
+      $scope.roomTemp = "--";
+
+      extScope = $scope; //allows access to the $scope object outside of the Angular Contructor
 });
 
-AngularApp.config(function($routeProvider) {
+
+
+AngularApp.config(function($routeProvider) { //Angular routing provides these HTML docs to "<ng-view></ng-view>" element
   $routeProvider
   .when("/", {
     templateUrl : "main.htm",
@@ -422,8 +541,50 @@ AngularApp.config(function($routeProvider) {
     templateUrl : "camera.htm"
   })
   .otherwise({
-    template : "<h1>Tomato</h1><p>Tomatoes contain around 95% water.</p>"
+    template : "<h1>404 Error</h1><p>Sorry! There's nothing here!</p>"
   });
+});
+
+window.addEventListener("load", function(){ //when page loads
+  //$("body").append("hey");
+});
+$(document).ready(function() {
+  /*
+  var rSlider = document.getElementById("redSlider");
+  var gSlider = document.getElementById("greenSlider");
+  var bSlider = document.getElementById("blueSlider");
+  var brightnessSlider = document.getElementById("brightnessSlider");
+  var rgb = {"device":3,"red":240,"green":200,"blue":140,"brightness":80,};
+*/
+
+  $(".device").on({
+    mouseenter: function() {
+        $(this).css("transform","translateY(-1px)");
+    },
+    mouseleave: function() {
+        $(this).css("transform","translateY(0px)");
+    },
+    mousedown: function() {
+        $(this).css("border-color","blue");
+        let newDevice = $(this).attr("value");
+        rgb.device = newDevice;
+    },
+    mouseup: function() {
+        $(this).css("border-color","white");
+    },
+});
+
+//Attach id="resizable" to an element to have it be vertially resizable.
+$( function() {
+  $( "#resizable" ).resizable({
+    minHeight: 300,
+    handles: 's',
+stop: function(event, ui) {
+    $(this).css("width", '');
+}
+  });
+});
+
 });
 
 socket.on('hueLights', function(data) {
@@ -451,73 +612,25 @@ socket.on('hueLights', function(data) {
 };
 });
 
-//window.addEventListener("load", function(){ //when page loads
-$(document).ready(function() {
-  var rSlider = document.getElementById("redSlider");
-  var gSlider = document.getElementById("greenSlider");
-  var bSlider = document.getElementById("blueSlider");
-  var brightnessSlider = document.getElementById("brightnessSlider");
-
-  var rgb = {"device":3,"red":240,"green":200,"blue":140,"brightness":80,};
-
-  $(".device").on({
-    mouseenter: function() {
-        $(this).css("transform","translateY(-1px)");
-    },
-    mouseleave: function() {
-        $(this).css("transform","translateY(0px)");
-    },
-    mousedown: function() {
-        $(this).css("border-color","blue");
-        let newDevice = $(this).attr("value");
-        rgb.device = newDevice;
-        socket.emit("rgbLed", rgb);
-    },
-    mouseup: function() {
-        $(this).css("border-color","white");
-    },
-});
-
-$( function() {
-  $( "#resizable" ).resizable({
-    minHeight: 300,
-    handles: 's',
-stop: function(event, ui) {
-    $(this).css("width", '');
-}
-  });
-
-} );
-
-/*
-  rSlider.addEventListener("change", function() { //add event listener for when red slider changes
-    rgb.red = this.value; //update the RED color according to the slider
-    //socket.emit("rgbLed", rgb); //send the updated color to RGB LED via WebSocket
-  });
-
-  gSlider.addEventListener("change", function() { //add event listener for when green slider changes
-    rgb.green = this.value; //update the GREEN color according to the slider
-    //socket.emit("rgbLed", rgb); //send the updated color to RGB LED via WebSocket
-  });
-  bSlider.addEventListener("change", function() { //add event listener for when blue slider changes
-    rgb.blue = this.value;  //update the BLUE color according to the slider
-    //socket.emit("rgbLed", rgb); //send the updated color to RGB LED via WebSocket
-  });
-  brightnessSlider.addEventListener("change", function() { //add event listener for when blue slider changes
-    rgb.lightness = this.value;  //update the BLUE color according to the slider
-    //socket.emit("rgbLed", rgb); //send the updated color to RGB LED via WebSocket
-  });
-
-  */
-    $("html").append("data");
-});
 socket.on('piTemperatureUpdate', function(piTemp, roomTemp) {
-	document.getElementById("PiTemp").innerHTML = "Pi Temp: "+piTemp;
-  document.getElementById("RoomTemp").innerHTML = "Room Temp: "+roomTemp;
+	extScope.piTemp = piTemp;
+  extScope.roomTemp = roomTemp;
 });
 
-let takePhoto = function() {
+
+//======================//
+// Various Button onClick functions
+//======================//
+let takePhoto = function() { //onClick for Camera "fa-camera" icon
   socket.emit("takePhoto");
 };
+
+let blindControl = function(direction) { //onClick for Blinds "fa-level-direction" icon
+  if (direction === "up") {
+  $(".blind-control-button").addClass("fa-level-down").removeClass("fa-level-up").attr("ondblclick","blindControl('down')");
+} else if (direction === "down") {
+  $(".blind-control-button").removeClass("fa-level-down").addClass("fa-level-up").attr("ondblclick","blindControl('up')");
+}
+}
 
 </script>
