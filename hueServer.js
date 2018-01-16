@@ -1,17 +1,26 @@
-var http = require('http').createServer(handler); //require http server, and create server with function handler()
+var express = require('express');
+var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 var path = require('path');
 var fs = require('fs'); //require filesystem module
-var io = require('socket.io')(http) //require socket.io module and pass the http object (server)
-var ds18x20 = require('ds18x20');
 var mongo = require('mongodb');  //require mongodb Database module
+
+
+var ds18x20 = require('ds18x20');
 var RaspiCam = require("raspicam"); //include Raspberry Pi Camera module
 
 var Gpio = require('onoff').Gpio; //include onoff to interact with the GPIO
 var pushButton = new Gpio(17, 'in', 'both'); //use GPIO pin 17 as input, and 'both' button presses, and releases should be handled
+
 var piFan = new Gpio(27, 'out');
+piFan.writeSync(1); //Fan on when Server Starts
+
 var pirSensor = new Gpio(26,'in', 'both');
 
-piFan.writeSync(1);
+//=============//
+//  Hue Setup  //
+//=============//
 
 
 ledRed = 0;
@@ -21,10 +30,6 @@ redRGB = 0, //set starting value of RED variable to off (0 for common cathode)
 greenRGB = 0, //set starting value of GREEN variable to off (0 for common cathode)
 blueRGB = 0; //set starting value of BLUE variable to off (0 for common cathode)
 
-var hue = require("node-hue-api"),
-    HueApi = hue.HueApi,
-    lightState = hue.lightState;
-
 var displayResult = function(result) {
     console.log(JSON.stringify(result, null, 2));
 };
@@ -33,18 +38,19 @@ var displayResult2 = function(result) {
     console.log(result);
 };
 
+var hue = require("node-hue-api"),
+HueApi = hue.HueApi,
+lightState = hue.lightState;
+
 var host = "192.168.1.64",
-    username = "8FNEwdPyoc9eVRxP7ukCnf4QFowMK2aoHOmBuJdi",
-    api = new HueApi(host, username),
-    state;
-
-
-var lightStatus = [];
+username = "8FNEwdPyoc9eVRxP7ukCnf4QFowMK2aoHOmBuJdi",
+api = new HueApi(host, username), state;
 
 let getRGB = function() {
   console.log("test");
 };
 
+var lightStatus = [];
 api.lights(function(err, devices, getRGB) {
     lightStatus = [];
     if (err) throw err;
@@ -71,63 +77,80 @@ api.lights(function(err, devices, getRGB) {
   console.log(lightStatus);
 
 });
-/*
-setInterval(function() {
-  api.lights(function(err, devices, getRGB) {
-      lightStatus = [];
-      if (err) throw err;
-      let lightsJSON = JSON.stringify(devices, null, 2);
-      lightsJSON = JSON.parse(lightsJSON);
-      lightsJSON = lightsJSON.lights;
-      for (let i = 0; i < lightsJSON.length; i++) {
-        if (lightsJSON[i].state.reachable) {
-          lightStatus.push(
-            {
-              "name":lightsJSON[i].name,
-              "type":lightsJSON[i].type,
-              "id":lightsJSON[i].id,
-              "state":{
-                        "on":lightsJSON[i].state.on,
-                        "brightness":Math.floor((lightsJSON[i].state.bri / 254 * 100)),
-                        "rgb":"rgb(100,100,100)",
-                      },
-            }
-          )
-        };
-    };
-
-    console.log(lightStatus);
-
-  });
-},5000)
-*/
-
 
 api.lights();
 
 
-http.listen(8081); //listen to port 8080
+app.use(express.static('public'));
+app.get('/', function(req, res){
+  res.sendFile(__dirname + '/public/expressTest.html');
+});
 
-function handler (req, res) { //what to do on requests to port 8080
-  fs.readFile(__dirname + '/public/index.html', function(err, data) { //read file rgb.html in public folder
-    if (err) {
-      res.writeHead(404, {'Content-Type': 'text/html'}); //display 404 on error
-      return res.end("404 Not Found");
-    }
-    res.writeHead(200, {'Content-Type': 'text/html'}); //write HTML
-    res.write(data); //write data from rgb.html
-    console.log("Connected!");
-    return res.end();
+
+io.on('connection', function(socket){
+    console.log('a user connected');
+  socket.on('disconnect', function(){
+    console.log('user disconnected');
   });
+
+  setInterval(function() {
+  let temp = fs.readFile("/sys/class/thermal/thermal_zone0/temp", function(err, data) {
+  console.log(data/1000);
+  socket.emit('piTemperatureUpdate', data/1000, cRoomTemp);
+  if (data/1000 > 43) {
+    piFan.writeSync(1);
+  } else {
+    piFan.writeSync(0);
+  };
+  setTimeout(function() {
+
+  socket.emit("hueLights", lightStatus);
+},1000);
+
+});
+}, 10000);
+
+  socket.on('hello', function() {
+    console.log("Hello!");
+  })
+
+  socket.on("takePhoto", function() {
+    takePhoto(displayPhoto);
+    console.log("Photo taken manually!");
+  });
+
+socket.on('rgbLed', function(data) { //get light switch status from client
+  console.log(data); //output data from WebSocket connection to console
+  //for common cathode RGB LED 0 is fully off, and 255 is fully on
+  //api.setLightState(3, lightState.create().on().rgb(255,200,200).brightness(80));
+
+  for (let i = 0; i< data.length; i++) {
+  rgb = data[i].state.rgb.split('(')[1].split(')')[0].split(',');
+  red=parseInt(rgb[0]);
+  green=parseInt(rgb[1]);
+  blue=parseInt(rgb[2]);
+  brightness=parseInt(data[i].state.brightness);
+  device=parseInt(data[i].id);
+  //lightStatus[i].state.brightness = brightness;
+  //lightStatus[i].state.rgb = "rgb("+red+","+green+","+blue+")";
+  //lightStatus[i].state.on = data[i].state.on;
+  if (data[i].state.on) {
+    state = lightState.create().on().rgb(red,green,blue).brightness(brightness);
+    console.log("Setting "+data[i].name+" to rgb("+red+","+green+","+blue+").");
+  } else {
+    state = lightState.create().off();
+    console.log("Turning "+data[i].name+" off.")
+  };
+
+  if (brightness <= 5) {
+     state = state.off();
+   };
+
+api.setLightState(device, state);
 }
 
-
-
-
-
-
-
-
+});
+});
 //==================//
 //==Camera Control==//
 //==================//
@@ -210,11 +233,6 @@ let displayPhoto = function() {
   //SORT THIS OUT
 };
 
-socket.on("takePhoto", function() {
-  takePhoto(displayPhoto);
-});
-
-
 //================//
 //==Temp Logging==//
 //================//
@@ -226,6 +244,7 @@ socket.on("takePhoto", function() {
 let roomTemps = new Object();
 let cRoomTemp = 0;
 setInterval(function() {
+
 
 
 let roomTemp;
@@ -257,70 +276,12 @@ ds18x20.get("28-0316c2c8bbff", function(err, value) {
 });
 }, 10000);
 
-io.sockets.on('connection', function (socket) {// Web Socket Connection
 
-		setInterval(function() {
-		let temp = fs.readFile("/sys/class/thermal/thermal_zone0/temp", function(err, data) {
-		console.log(data/1000);
-		socket.emit('piTemperatureUpdate', data/1000, cRoomTemp);
-		if (data/1000 > 43) {
-			piFan.writeSync(1);
-		} else {
-			piFan.writeSync(0);
-		};
-    setTimeout(function() {
-
-    socket.emit("hueLights", lightStatus);
-  },1000);
-
+http.listen(8081, function(){
+  console.log('listening on *:3000');
 });
-}, 10000);
-
-//lightStatus = JSON.stringify(lightStatus);
-//socket.emit('hueStatus', lightStatus);
-
-//=================//
-//==Socket Handle==//
-//=================//
-
-
-  socket.on('rgbLed', function(data) { //get light switch status from client
-    console.log(data); //output data from WebSocket connection to console
-    //for common cathode RGB LED 0 is fully off, and 255 is fully on
-
-  for (let i = 0; i< data.length; i++) {
-    rgb = data[i].state.rgb.split('(')[1].split(')')[0].split(',');
-    red=parseInt(rgb[0]);
-    green=parseInt(rgb[1]);
-    blue=parseInt(rgb[2]);
-    brightness=parseInt(data[i].state.brightness);
-    device=parseInt(data[i].id);
-    lightStatus[i].state.brightness = brightness;
-    lightStatus[i].state.rgb = "rgb("+red+","+green+","+blue+")";
-    lightStatus[i].state.on = data[i].state.on;
-    if (data[i].state.on) {
-      state = lightState.create().on().rgb(red,green,blue).brightness(brightness);
-      console.log("Setting "+data[i].name+" to rgb("+red+","+green+","+blue+").");
-    } else {
-      state = lightState.create().off();
-      console.log("Turning "+data[i].name+" off.")
-    };
-
-    if (brightness <= 5) {
-	     state = state.off();
-     };
-
-  api.setLightState(device, state);
-  }
-
-  });
-  });
-//================//
-//==Close Handle==//
-//================//
-
 
 process.on('SIGINT', function () { //on ctrl+c
-  fs.writeFile("./roomTemps.txt",roomTemps);
+  console.log("Closing down on Request.");
   process.exit(); //exit completely
 });

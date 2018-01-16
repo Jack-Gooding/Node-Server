@@ -13,8 +13,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
-</head>
+<script src="/socket.io/socket.io.js"></script></head>
 <style>
 
 
@@ -310,7 +309,8 @@ margin: 1% 5%
 </html>
 
 <script>
-var socket = io(); //load socket.io-client and connect to the host that serves the page
+var socket = io();//localhost'); //load socket.io-client and connect to the host that serves the page
+
 
 var rgbDevice = [{"state":{"brightness":35},},{"state":{"brightness":35},},{"state":{"brightness":35},},];
 var tempDevice = [];
