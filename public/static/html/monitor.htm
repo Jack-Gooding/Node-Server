@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <title>Monitoring</title>
+</head>
+<script type="text/javascript">
+
+google.charts.load('current', {'packages':['corechart']});
+ google.charts.setOnLoadCallback(drawChart);
+
+ function drawChart() {
+   var data = google.visualization.arrayToDataTable([
+     ['Time', 'Raspberry Pi', 'Room', 'Outside'],
+     ['13:45',  40,      19.5, 11.0],
+     ['13:50',  40.5,      19.5, 10.3],
+     ['13:55',  41,       19.5, 10.3],
+     ['14:00',  41,      19.6, 10.8]
+   ]);
+
+   var options = {
+     title: 'Temperature Sensing',
+     curveType: 'function',
+     legend: { position: 'right' }
+   };
+
+   var chart = new google.visualization.LineChart(document.getElementById('linechart_material'));
+   
+   chart.draw(data, options);
+};
+</script>
+<body>
+<div class="row main-content" ng-controller="rgbStripCtrl">
+  <h3>Overview</h3>
+  <div id="linechart_material" style="display: block;width:100%; height:600px;"></div>
+</div>
+</body>
+</html>
