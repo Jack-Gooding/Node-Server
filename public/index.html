@@ -13,7 +13,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js"></script>
-<script src="https://cdn.socket.io/socket.io-1.0.0.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 </head>
 
 <style>
@@ -322,7 +322,8 @@ margin: 1% 5%
 </style>
 
 <body>
-  <div class="container-fluid" ng-app="Angular" ng-controller="hueCtrl">
+  <div class="container-fluid" ng-app="Angular" >
+  <div ng-controller="hueCtrl">
     <div class="row header-bar">
     <div class="col-sm-2"><div class="header-menu" onclick="openNav()"><h4><span class="fa fa-active fa-navicon"></span>&nbsp;Menu</h4></div></div>
     <div class="col" style="text-align: center;">
@@ -332,6 +333,8 @@ margin: 1% 5%
       <div class="header-quick-buttons" style="position: absolute; right: 0;">
         <span class="fa fa-active fa-level-up blind-control-button" style="transform: scale(2); padding-right: 25px;" ondblclick="blindControl('up')"></span>
         <span class="fa fa-active fa-camera" style="transform: scale(2);" onclick="takePhoto()"></span>
+        <span class="fa fa-active fa-cogs" style="padding-left: 10px;transform: scale(2);" ng-click="motionDetectOn()"></span>
+        <p style="display: inline;">Motion Detection?:<input type="checkbox" ng-model="motionDetect">{{motionDetect}}</p>
       </div>
     </div>
     <div class="col-sm-3" style="height: 50px;">
@@ -356,11 +359,11 @@ margin: 1% 5%
   <a href="#!Idle Game">Idle Game</a>
 </div>
 </div>
+</div>
 </body>
 </html>
 <script>
 var socket = io();//localhost'); //load socket.io-client and connect to the host that serves the page
-$("html").append("data");
 
 
 var rgbDevice = [{"state":{"brightness":35},},{"state":{"brightness":35},},{"state":{"brightness":35},},];
@@ -372,12 +375,12 @@ var AngularApp = angular.module('Angular', ["ngRoute"]);
 /* Set the width of the side navigation to 250px */
 function openNav() {
     document.getElementById("mySidenav").style.width = "250px";
-}
+};
 
 /* Set the width of the side navigation to 0 */
 function closeNav() {
     document.getElementById("mySidenav").style.width = "0";
-}
+};
 
 $(document).keydown(function(event){
     if(event.which=="17")
@@ -393,6 +396,13 @@ var ctrlIsPressed = false;
 
 var extScope;
 AngularApp.controller('hueCtrl', function($scope, $compile) {
+  //Camera
+  $scope.motionDetect = false;
+  $scope.motionDetectOn = function() {
+    // toggles motionDetect & emits the value
+    $scope.motionDetect != $scope.motionDetect;
+    socket.emit("motionDetectOnOff", $scope.motionDetect);
+  };
       $scope.devices = [
         {"name":"Bathroom Light",
         "type":"Dimmable light",
@@ -510,18 +520,16 @@ AngularApp.controller('hueCtrl', function($scope, $compile) {
         $scope.green = Math.floor(Math.random()*255);
         $scope.blue = Math.floor(Math.random()*255);
         $scope.colourUpdate();
-
       };
+
 
       //Declaring variables for use with Settings & ng-show
       $scope.showSwatch = true;
       $scope.hueAdvanced = false;
       $scope.colourInfo = false;
       $scope.hueMostUsed = true;
-
-
-      $scope.piTemp = "--";
-      $scope.roomTemp = "--";
+      $scope.piTemp = 00;
+      $scope.roomTemp = 00;
 
       extScope = $scope; //allows access to the $scope object outside of the Angular Contructor
 });
@@ -546,18 +554,12 @@ AngularApp.config(function($routeProvider) { //Angular routing provides these HT
 });
 
 window.addEventListener("load", function(){ //when page loads
-  //$("body").append("hey");
+  $("body").append("hey");
 });
-$(document).ready(function() {
-  /*
-  var rSlider = document.getElementById("redSlider");
-  var gSlider = document.getElementById("greenSlider");
-  var bSlider = document.getElementById("blueSlider");
-  var brightnessSlider = document.getElementById("brightnessSlider");
-  var rgb = {"device":3,"red":240,"green":200,"blue":140,"brightness":80,};
-*/
 
-  $(".device").on({
+$(document).ready(function() {
+
+$(".device").on({
     mouseenter: function() {
         $(this).css("transform","translateY(-1px)");
     },
@@ -587,6 +589,14 @@ stop: function(event, ui) {
 
 });
 
+socket.on('piTemperatureUpdate', function(piTemp, roomTemp) {
+	extScope.piTemp = parseInt(piTemp);
+  $("#PiTemp").html("&nbsp; Pi Temp: "+piTemp+"'C");
+  extScope.roomTemp = parseInt(roomTemp);
+  $("#RoomTemp").html("&nbsp; Room Temp: "+roomTemp+"'C");
+
+});
+
 socket.on('hueLights', function(data) {
   tempDevice = JSON.stringify(data);
   $("html").append(JSON.parse(tempDevice).length);
@@ -612,10 +622,21 @@ socket.on('hueLights', function(data) {
 };
 });
 
-socket.on('piTemperatureUpdate', function(piTemp, roomTemp) {
-	extScope.piTemp = piTemp;
-  extScope.roomTemp = roomTemp;
-});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //======================//
@@ -632,5 +653,7 @@ let blindControl = function(direction) { //onClick for Blinds "fa-level-directio
   $(".blind-control-button").removeClass("fa-level-down").addClass("fa-level-up").attr("ondblclick","blindControl('up')");
 }
 }
+
+
 
 </script>

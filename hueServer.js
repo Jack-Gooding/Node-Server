@@ -6,6 +6,8 @@ var path = require('path');
 var fs = require('fs'); //require filesystem module
 var mongo = require('mongodb');  //require mongodb Database module
 
+var nodemailer = require('nodemailer');
+
 
 var ds18x20 = require('ds18x20');
 var RaspiCam = require("raspicam"); //include Raspberry Pi Camera module
@@ -16,6 +18,7 @@ var pushButton = new Gpio(17, 'in', 'both'); //use GPIO pin 17 as input, and 'bo
 var piFan = new Gpio(27, 'out');
 piFan.writeSync(1); //Fan on when Server Starts
 
+let motionDetectStatus = false;
 var pirSensor = new Gpio(26,'in', 'both');
 
 //=============//
@@ -83,14 +86,33 @@ api.lights();
 
 app.use(express.static('public'));
 app.get('/', function(req, res){
-  res.sendFile(__dirname + '/public/expressTest.html');
+  res.sendFile(__dirname + '/public/index.html');
 });
 
 
+
 io.on('connection', function(socket){
-    console.log('a user connected');
+  console.log('user connected');
   socket.on('disconnect', function(){
     console.log('user disconnected');
+  });
+
+
+  socket.on('hello', function() {
+    console.log("Hello!");
+  })
+
+  socket.on("takePhoto", function() {
+    takePhoto(displayPhoto);
+    console.log("Photo taken manually!");
+  });
+
+
+  socket.on("motionDetectOnOff", function(motionDetect) {
+    setTimeout(function() {
+    motionDetectStatus = motionDetect;
+    motionDetect ? console.log("Motion Detection now active!") : console.log("Motion Detection now turned off.") ;
+  },1000);
   });
 
   setInterval(function() {
@@ -102,22 +124,12 @@ io.on('connection', function(socket){
   } else {
     piFan.writeSync(0);
   };
-  setTimeout(function() {
-
+/*  setTimeout(function() {
   socket.emit("hueLights", lightStatus);
-},1000);
+},1000);*/
 
-});
-}, 10000);
-
-  socket.on('hello', function() {
-    console.log("Hello!");
-  })
-
-  socket.on("takePhoto", function() {
-    takePhoto(displayPhoto);
-    console.log("Photo taken manually!");
   });
+}, 10000);
 
 socket.on('rgbLed', function(data) { //get light switch status from client
   console.log(data); //output data from WebSocket connection to console
@@ -151,6 +163,7 @@ api.setLightState(device, state);
 
 });
 });
+
 //==================//
 //==Camera Control==//
 //==================//
@@ -176,7 +189,7 @@ let getTime = function() {
   let timeNow = hh + "-" + m + "-" + ss;
   return timeNow;
 }
-
+let recentPhoto;
 let getDate = function() {
   let today = new Date();
 
@@ -199,21 +212,63 @@ let getDate = function() {
 }
 
 
-let takePhoto = function() {
+let takePhoto = function(Intruder) {
 
 let timeNow = getTime();
 let today = getDate();
-
-var camera = new RaspiCam({mode:"photo", output:"../../jack/fileShare/TimeShot_Captures/TimeShot_Me_" + today +"@"+timeNow+".jpg", e:"jpg", width: 1920, height: 1080, log:"" , quality:100, q:100, sh: 0, co: 0,});
+let cameraPath = Intruder === "IntruderAlert" ? "Intruder_Detection/Intruder_Detected_" : "TimeShot_Captures/TimeShot_Me_";
+    recentPhoto = "../../jack/fileShare/"+ cameraPath + today +"@"+timeNow+".jpg";
+var camera = new RaspiCam({mode:"photo", output:recentPhoto, e:"jpg", width: 1920, height: 1080, log:"" , quality:100, q:100, sh: 0, co: 0,});
 
 camera.start();
+setTimeout(function() {
+if (Intruder === "IntruderAlert") {
+  fs.createReadStream(recentPhoto).pipe(fs.createWriteStream('../../jack/fileShare/Intruder_Detection/Intruder_Detected_To_Be_Sent.jpg'));
+  console.log(recentPhoto);
+};
+}, 12000);
 }
+
+var transporter = nodemailer.createTransport({
+  service: 'outlook',
+  auth: {
+    user: 'REDACTED',
+    pass: 'REDACTED'
+  }
+});
+
+
+var mailOptions = {
+  from: 'ironcladjack@live.co.uk',
+  to: 'ironcladjack@live.co.uk',
+  subject: 'Intruder Detected',
+  text: 'Date: '+getDate()+', Time: '+getTime(),
+  attachments: [{
+  filename: 'Intruder_Detected_'+getDate()+'@'+getTime()+'.jpg', // stream this file
+  path: "../../jack/fileShare/Intruder_Detection/Intruder_Detected_To_Be_Sent.jpg",
+  cid: 'Intruder_Detected_'+getDate()+'@'+getTime()+'.jpg',
+  }]
+};
+
+
 
 pirSensor.watch(function (err, value) {
   if (err) {
-    console.error('There was an error', err)
+    console.error('There was an error', err);
+  };
+  if (motionDetectStatus) {
+    console.log("Intruder Detected!");
+    takePhoto("IntruderAlert");
+    setTimeout(function() {
+      transporter.sendMail(mailOptions, function(error, info){
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
+  }, 15000);
   }
-  console.log('Intruder Detected');
 });
 
 pushButton.watch(function (err, value) { //Watch for hardware interrupts on pushButton GPIO, specify callback function
@@ -278,7 +333,7 @@ ds18x20.get("28-0316c2c8bbff", function(err, value) {
 }, 10000);
 
 
-http.listen(8081, function(){
+http.listen(3000, function(){
   console.log('listening on //RASPBERRYPI:8081');
 });
 

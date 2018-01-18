@@ -15,6 +15,7 @@
     "express": "^4.16.2",
     "mongodb": "^3.0.1",
     "node-hue-api": "^2.4.2",
+    "nodemailer": "^4.4.1",
     "nodemon": "^1.14.6",
     "onoff": "^1.1.8",
     "raspicam": "^0.2.14",
