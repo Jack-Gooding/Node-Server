@@ -90,11 +90,11 @@
   <div class="col">
     <div class="row"><h3>RGB Strips</h3><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings" ></span></div>
     <div class="row">
-      <div class="col-sm-4">
+      <div class="col-sm-3">
         <div class="row">
-          Single Pixel&nbsp;<input type="radio" name="pixelSelection" ng-model="pixelSelection" value="single">
-          Range&nbsp;<input type="radio" name="pixelSelection" ng-model="pixelSelection" value="range">
-          String&nbsp;<input type="radio" name="pixelSelection" ng-model="pixelSelection" value="string">
+          <div style="border: solid 1px black; margin: 2px;">Single Pixel&nbsp;<input type="radio" name="pixelSelection" ng-model="pixelSelection" value="single"></div>
+          <div style="border: solid 1px black; margin: 2px;">Range&nbsp;<input type="radio" name="pixelSelection" ng-model="pixelSelection" value="range"></div>
+          <div style="border: solid 1px black; margin: 2px;">String&nbsp;<input type="radio" name="pixelSelection" ng-model="pixelSelection" value="string"></div>
         </div>
         <div ng-switch="pixelSelection">
           <div ng-switch-when="single">
@@ -108,11 +108,43 @@
             </div>
           </div>
         </div>
+        <div class="row">
+          <div style="border: solid 1px black; margin: 2px;">Rgb&nbsp;<input type="radio" name="rgbInputSelection" ng-model="rgbInputSelection" value="rgb"></div>
+          <div style="border: solid 1px black; margin: 2px;">Hex&nbsp;<input type="radio" name="rgbInputSelection" ng-model="rgbInputSelection" value="hex"></div>
+          <div style="border: solid 1px black; margin: 2px;">Function&nbsp;<input type="radio" name="rgbInputSelection" ng-model="rgbInputSelection" value="function"></div>
+        </div>
+        <div ng-switch="rgbInputSelection">
+          <div ng-switch-when="rgb">
+            <div class="row">
+              <label>Red:&nbsp;<input type="text" ng-model="pixelRed" value=""/></label><br>
+              <label>Green:&nbsp;<input type="text" ng-model="pixelGreen" value=""/></label><br>
+              <label>Blue:&nbsp;<input type="text" ng-model="pixelBlue" value=""/></label><br>
+            </div>
+          </div>
+          <div ng-switch-when="hex">
+            <div class="row">
+              <label>Hex: &nbsp;</label><input type="text" value="#"/>
+            </div>
+          </div>
+          <div ng-switch-when="function">
+            <div class="row">
+              <label>function: &nbsp;</label><textarea value="#"/>
+            </div>
+        </div>
       </div>
+    </div>
       <div class="col">
-        <input type="range" min="0" max="255" ng-model="red" ng-change="colourUpdate()" class="slider">
-        <input type="range" min="0" max="255" ng-model="green" ng-change="colourUpdate()" class="slider">
-        <input type="range" min="0" max="255" ng-model="blue" ng-change="colourUpdate()" class="slider">
+        <input type="range" min="0" max="255" ng-model="pixelRed" ng-change="pixelColourUpdate()" class="slider">
+        <input type="range" min="0" max="255" ng-model="pixelGreen" ng-change="pixelColourUpdate()" class="slider">
+        <input type="range" min="0" max="255" ng-model="pixelBlue" ng-change="pixelColourUpdate()" class="slider">
+      </div>
+      <div class="col-sm-3">
+        <div class="row" style="height: 80%">
+          <div style="width: 100%; height: 100%; background: rgb({{pixelRed}},{{pixelGreen}},{{pixelBlue}});"></div>
+        </div>
+        <div class="row" style="text-align:center;">
+          <button style="text-align:center; width: 100%;" value="submit">Submit</button>
+        </div>
       </div>
     </div>
   </div>

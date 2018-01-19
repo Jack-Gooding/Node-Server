@@ -217,6 +217,10 @@ AngularApp.controller('AngularApp', function($scope, $compile) {
 
       //RGB WS2812b NeoPixel controller
       $scope.pixelSelection = "single";
+      $scope.pixelRed=245;
+      $scope.pixelGreen=115;
+      $scope.pixelBlue=175;
+
 
 
       extScope = $scope; //allows access to the $scope object outside of the Angular Contructor
