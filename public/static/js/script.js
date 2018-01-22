@@ -205,6 +205,8 @@ AngularApp.controller('AngularApp', function($scope, $compile) {
         $scope.colourUpdate();
       };
 
+      $scope.initialiseState = function(data) {
+      };
 
       //Declaring variables for use with Settings & ng-show
       $scope.showSwatch = true;
@@ -220,7 +222,6 @@ AngularApp.controller('AngularApp', function($scope, $compile) {
       $scope.pixelRed=245;
       $scope.pixelGreen=115;
       $scope.pixelBlue=175;
-
 
 
       extScope = $scope; //allows access to the $scope object outside of the Angular Contructor
@@ -288,6 +289,7 @@ socket.on('piTemperatureUpdate', function(piTemp, roomTemp) {
 
 });
 
+
 socket.on('hueLights', function(data) {
   tempDevice = JSON.stringify(data);
   $("html").append(JSON.parse(tempDevice).length);
@@ -330,3 +332,14 @@ let blindControl = function(direction) { //onClick for Blinds "fa-level-directio
   $(".blind-control-button").removeClass("fa-level-down").addClass("fa-level-up").attr("ondblclick","blindControl('up')");
 }
 };
+
+
+/*
+socket.on('hueLightStatus', function(data) {
+  data = JSON.stringify(data);
+  extScope.devices = JSON.parse(data);
+  $("body").append(JSON.parse(data)[1].state.brightness/100*255);
+  extScope.brightness = JSON.parse(data)[1].state.brightness/100*255;
+  extScope.devices[1].state.brightness = JSON.parse(data)[1].state.brightness/100*255;
+});
+*/

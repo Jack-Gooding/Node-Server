@@ -98,9 +98,7 @@ io.on('connection', function(socket){
   });
 
 
-  socket.on('hello', function() {
-    console.log("Hello!");
-  })
+  socket.emit("hueLightStatus", lightStatus);
 
   socket.on("takePhoto", function() {
     takePhoto(displayPhoto);
@@ -115,6 +113,10 @@ io.on('connection', function(socket){
   },1000);
   });
 
+  let temp = fs.readFile("/sys/class/thermal/thermal_zone0/temp", function(err, data) {
+  console.log(data/1000);
+  socket.emit('piTemperatureUpdate', data/1000, cRoomTemp);
+});
   setInterval(function() {
   let temp = fs.readFile("/sys/class/thermal/thermal_zone0/temp", function(err, data) {
   console.log(data/1000);
@@ -143,9 +145,9 @@ socket.on('rgbLed', function(data) { //get light switch status from client
   blue=parseInt(rgb[2]);
   brightness=parseInt(data[i].state.brightness);
   device=parseInt(data[i].id);
-  //lightStatus[i].state.brightness = brightness;
-  //lightStatus[i].state.rgb = "rgb("+red+","+green+","+blue+")";
-  //lightStatus[i].state.on = data[i].state.on;
+  lightStatus[i].state.brightness = brightness;
+  lightStatus[i].state.rgb = "rgb("+red+","+green+","+blue+")";
+  lightStatus[i].state.on = data[i].state.on;
   if (data[i].state.on) {
     state = lightState.create().on().rgb(red,green,blue).brightness(brightness);
     console.log("Setting "+data[i].name+" to rgb("+red+","+green+","+blue+").");
@@ -221,19 +223,15 @@ let cameraPath = Intruder === "IntruderAlert" ? "Intruder_Detection/Intruder_Det
 var camera = new RaspiCam({mode:"photo", output:recentPhoto, e:"jpg", width: 1920, height: 1080, log:"" , quality:100, q:100, sh: 0, co: 0,});
 
 camera.start();
-setTimeout(function() {
-if (Intruder === "IntruderAlert") {
-  fs.createReadStream(recentPhoto).pipe(fs.createWriteStream('../../jack/fileShare/Intruder_Detection/Intruder_Detected_To_Be_Sent.jpg'));
-  console.log(recentPhoto);
 };
-}, 12000);
-}
 
+
+let emailDetails = JSON.parse(fs.readFileSync("public/static/js/emailDetails.txt"));
 var transporter = nodemailer.createTransport({
   service: 'outlook',
   auth: {
-    user: 'REDACTED',
-    pass: 'REDACTED'
+    user: emailDetails.user,
+    pass: emailDetails.pass
   }
 });
 
@@ -251,25 +249,51 @@ var mailOptions = {
 };
 
 
+let motionDetectRecent = false;
 
 pirSensor.watch(function (err, value) {
   if (err) {
     console.error('There was an error', err);
   };
-  if (motionDetectStatus) {
-    console.log("Intruder Detected!");
-    takePhoto("IntruderAlert");
-    setTimeout(function() {
-      transporter.sendMail(mailOptions, function(error, info){
-      if (error) {
-        console.log(error);
-      } else {
-        console.log('Email sent: ' + info.response);
-      }
+    var intruderCapture = new Promise(function(resolve, reject) {
+      if (motionDetectStatus && !motionDetectRecent) {
+        motionDetectRecent = true;
+        console.log("Intruder Detected!")
+        takePhoto("IntruderAlert");
+        setTimeout(function() {
+          resolve("Preparing photo for email...");
+        },10000);
+      };
     });
-  }, 15000);
-  }
+    intruderCapture.then(function(value) {
+      console.log(value)
+      // expected output: "Success!"
+    }, function (error) {
+      console.error('uh oh: ', error);   // 'uh oh: something bad happened’
+    }).then(function(){
+      console.log("Preparing to send photo...");
+        fs.createReadStream(recentPhoto).pipe(fs.createWriteStream('../../jack/fileShare/Intruder_Detection/Intruder_Detected_To_Be_Sent.jpg'));
+    }).then(function(){
+        setTimeout(function() {
+          console.log("Sending Photo...")
+          transporter.sendMail(mailOptions, function(error, info){
+          if (error) {
+            console.log(error);
+          } else {
+            console.log('Email sent: ' + info.response);
+          }
+        });
+      }, 3000);
+    }).then(function() {
+      setTimeout(function() {
+        motionDetectRecent = false;
+        console.log("Motion Detection ready.")
+      }, 10000)
+    });
 });
+
+
+
 
 pushButton.watch(function (err, value) { //Watch for hardware interrupts on pushButton GPIO, specify callback function
   if (err) { //if an error
@@ -332,9 +356,9 @@ ds18x20.get("28-0316c2c8bbff", function(err, value) {
 
 }, 10000);
 
-
-http.listen(3000, function(){
-  console.log('listening on //RASPBERRYPI:8081');
+let port = 3000;
+http.listen(port, function(){
+  console.log('listening on //RASPBERRYPI:'+port);
 });
 
 process.on('SIGINT', function () { //on ctrl+c
