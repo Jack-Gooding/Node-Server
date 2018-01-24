@@ -89,6 +89,9 @@
 <div class="row main-content">
   <div class="col">
     <div class="row"><h3>RGB Strips</h3><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings" ></span></div>
+    <div class="row" style="padding: 10px 0;">
+      <div class="col" style="padding: 2px;" ng-repeat="x in ledArray" ng-click="updatePixelSliderUI($index)"><div style="background: rgb({{x.state.red}},{{x.state.green}},{{x.state.blue}}); height: 50px; width: 100%;"></div></div>
+    </div>
     <div class="row">
       <div class="col-sm-3">
         <div class="row">
@@ -99,12 +102,13 @@
         <div ng-switch="pixelSelection">
           <div ng-switch-when="single">
             <div class="row">
-              <label>Pixel:&nbsp;</label><input type="text" value="1"/>
+              <label>Pixel:&nbsp;</label><input id="singlePixelInput" value="1" ng-model="pixelIndex" ng-change="updatePixelSliderUI('input')" type="text" />
+              {{pixelIndex}}
             </div>
           </div>
           <div ng-switch-when="range">
             <div class="row">
-              <p>Range:&nbsp;<input type="text" value="1"/>&nbsp;to&nbsp;<input type="text" value="14"/></p>
+              <p>Range:&nbsp;<input id="rangePixelInput" ng-change="updatePixelSliderUI('range')" ng-model="pixelIndex" type="text" value="1"/>&nbsp;to&nbsp;<input type="text" value="14"/></p>
             </div>
           </div>
         </div>
@@ -134,9 +138,9 @@
       </div>
     </div>
       <div class="col">
-        <input type="range" min="0" max="255" ng-model="pixelRed" ng-change="pixelColourUpdate()" class="slider">
-        <input type="range" min="0" max="255" ng-model="pixelGreen" ng-change="pixelColourUpdate()" class="slider">
-        <input type="range" min="0" max="255" ng-model="pixelBlue" ng-change="pixelColourUpdate()" class="slider">
+        <input type="range" min="0" max="255" ng-model="pixelRed" ng-change="updateLedArray()" class="slider">
+        <input type="range" min="0" max="255" ng-model="pixelGreen" ng-change="updateLedArray()" class="slider">
+        <input type="range" min="0" max="255" ng-model="pixelBlue" ng-change="updateLedArray()" class="slider">
       </div>
       <div class="col-sm-3">
         <div class="row" style="height: 80%">

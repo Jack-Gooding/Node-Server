@@ -54,6 +54,20 @@ var rgbDevice = [{"state":{"brightness":35},},{"state":{"brightness":35},},{"sta
 var tempDevice = [];
 
 
+let ledPixelArray = [];
+for (let i = 0; i < 25; i++) {
+    ledPixelArray.push(
+      {
+        "index": i,
+        "state": {
+          "red": Math.round(Math.random()*255),
+          "green": Math.round(Math.random()*255),
+          "blue": Math.round(Math.random()*255),
+        },
+      },
+    )
+};
+
 
 
 function openNav() { // Set the width of the side navigation to 250px
@@ -75,6 +89,8 @@ $(document).keyup(function(){
 });
 
 var ctrlIsPressed = false;
+
+
 
 var AngularApp = angular.module('Angular', ["ngRoute"]);
 var extScope;
@@ -218,12 +234,44 @@ AngularApp.controller('AngularApp', function($scope, $compile) {
 
 
       //RGB WS2812b NeoPixel controller
+
+      $scope.ledArray = ledPixelArray;
+
       $scope.pixelSelection = "single";
       $scope.pixelRed=245;
       $scope.pixelGreen=115;
       $scope.pixelBlue=175;
 
+      $scope.pixelIndex = [0,]; //Translate which Pixel is selected
 
+      $scope.updateLedArray = function() { //changes the associated Pixel to match the Sliders
+        for (let i = 0; i < $scope.pixelIndex.length; i++) {
+          $scope.ledArray[$scope.pixelIndex[i]].state.red = $scope.pixelRed;
+          $scope.ledArray[$scope.pixelIndex[i]].state.green = $scope.pixelGreen;
+          $scope.ledArray[$scope.pixelIndex[i]].state.blue = $scope.pixelBlue;
+        }
+      };
+      $scope.updatePixelSliderUI = function(index) { //Changes which Pixel is selected,and updates the Sliders to match
+        $scope.pixelIndex = $scope.pixelIndex.slice(0,1);
+        if (index === 'input') {
+          $scope.pixelIndex[0] = document.getElementById("singlePixelInput").value;
+        } else if (index === 'range') {
+          pixelRange = document.getElementById("rangePixelInput").value;
+          pixelRange = pixelRange.split('-');
+          pixelRangeStart = parseInt(pixelRange[0]);
+          pixelRange = parseInt(pixelRange[1]);
+          $("#rangePixelInput").after(pixelRangeStart);
+          for (let i = 0; i < pixelRange; i++) {
+            $scope.pixelIndex[i] = pixelRangeStart + i;
+            $("#rangePixelInput").append(pixelRangeStart + i);
+          };
+        } else {
+          $scope.pixelIndex[0] = index;
+        };
+        $scope.pixelRed = $scope.ledArray[$scope.pixelIndex[0]].state.red;
+        $scope.pixelGreen = $scope.ledArray[$scope.pixelIndex[0]].state.green;
+        $scope.pixelBlue = $scope.ledArray[$scope.pixelIndex[0]].state.blue;
+      };
       extScope = $scope; //allows access to the $scope object outside of the Angular Contructor
 });
 
