@@ -289,6 +289,9 @@ socket.on('piTemperatureUpdate', function(piTemp, roomTemp) {
 
 });
 
+socket.on('motionDetectSend', function(motionDetect) {
+  extScope.motionDetect = motionDetect;
+});
 
 socket.on('hueLights', function(data) {
   tempDevice = JSON.stringify(data);
