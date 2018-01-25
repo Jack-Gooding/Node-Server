@@ -260,17 +260,22 @@ AngularApp.controller('AngularApp', function($scope, $compile) {
           pixelRange = pixelRange.split('-');
           pixelRangeStart = parseInt(pixelRange[0]);
           pixelRange = parseInt(pixelRange[1]);
-          $("#rangePixelInput").after(pixelRangeStart);
           for (let i = 0; i < pixelRange; i++) {
             $scope.pixelIndex[i] = pixelRangeStart + i;
-            $("#rangePixelInput").append(pixelRangeStart + i);
           };
+        } else if (index === 'string') {
+            for (let i = 0; i < 25; i++) {
+              $scope.pixelIndex[i] = i;
+            }
         } else {
           $scope.pixelIndex[0] = index;
         };
         $scope.pixelRed = $scope.ledArray[$scope.pixelIndex[0]].state.red;
         $scope.pixelGreen = $scope.ledArray[$scope.pixelIndex[0]].state.green;
         $scope.pixelBlue = $scope.ledArray[$scope.pixelIndex[0]].state.blue;
+      };
+      $scope.emitPixelArray = function() {
+        socket.emit('sendPixelArray', ledPixelArray);
       };
       extScope = $scope; //allows access to the $scope object outside of the Angular Contructor
 });

@@ -21,6 +21,29 @@ piFan.writeSync(1); //Fan on when Server Starts
 let motionDetectStatus = false;
 var pirSensor = new Gpio(26,'in', 'both');
 
+
+
+
+var ws281x = require('rpi-ws281x-native');// ws281x addressable RGB strip
+
+var NUM_LEDS = parseInt(process.argv[2], 10) || 25,
+    pixelData = new Uint32Array(NUM_LEDS);
+    let pixelDataStore;
+
+ws281x.init(NUM_LEDS);
+for (var i = 0; i < NUM_LEDS; i+=5) {
+    pixelData[i] = rgb2Int(255,255,150);
+};
+ws281x.render(pixelData);
+setInterval(function() {
+  ws281x.render(pixelData);
+
+},5000);
+
+function rgb2Int(r, g, b) {
+  return ((r & 0xff) << 16) + ((g & 0xff) << 8) + (b & 0xff);
+}
+
 //=============//
 //  Hue Setup  //
 //=============//
@@ -101,10 +124,23 @@ io.on('connection', function(socket){
 
   socket.emit("hueLightStatus", lightStatus);
 
+  
   socket.on("takePhoto", function() {
     takePhoto(displayPhoto);
     console.log("Photo taken manually!");
   });
+
+  socket.on("sendPixelArray", function(ledPixelArray) {
+    console.log(ledPixelArray);
+    pixelDataStore = ledPixelArray;
+    for (var i = 0; i < ledPixelArray.length; i++) {
+      x = ledPixelArray[i].state;
+      pixelData[i] = rgb2Int(x.red,x.green,x.blue);
+    };
+    pixelData = pixelData.reverse()
+    ws281x.render(pixelData);
+  });
+
 
 
   socket.on("motionDetectOnOff", function(motionDetect) {
@@ -364,5 +400,6 @@ http.listen(port, function(){
 
 process.on('SIGINT', function () { //on ctrl+c
   console.log("Closing down on Request.");
+  ws281x.reset();
   process.exit(); //exit completely
 });

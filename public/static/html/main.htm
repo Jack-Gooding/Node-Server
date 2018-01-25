@@ -97,13 +97,12 @@
         <div class="row">
           <div style="border: solid 1px black; margin: 2px;">Single Pixel&nbsp;<input type="radio" name="pixelSelection" ng-model="pixelSelection" value="single"></div>
           <div style="border: solid 1px black; margin: 2px;">Range&nbsp;<input type="radio" name="pixelSelection" ng-model="pixelSelection" value="range"></div>
-          <div style="border: solid 1px black; margin: 2px;">String&nbsp;<input type="radio" name="pixelSelection" ng-model="pixelSelection" value="string"></div>
+          <div style="border: solid 1px black; margin: 2px;">String&nbsp;<input type="radio" name="pixelSelection" ng-model="pixelSelection" ng-click="updatePixelSliderUI('string')" value="string"></div>
         </div>
         <div ng-switch="pixelSelection">
           <div ng-switch-when="single">
             <div class="row">
               <label>Pixel:&nbsp;</label><input id="singlePixelInput" value="1" ng-model="pixelIndex" ng-change="updatePixelSliderUI('input')" type="text" />
-              {{pixelIndex}}
             </div>
           </div>
           <div ng-switch-when="range">
@@ -147,7 +146,7 @@
           <div style="width: 100%; height: 100%; background: rgb({{pixelRed}},{{pixelGreen}},{{pixelBlue}});"></div>
         </div>
         <div class="row" style="text-align:center;">
-          <button style="text-align:center; width: 100%;" value="submit">Submit</button>
+          <button style="text-align:center; width: 100%;" value="submit" ng-click="emitPixelArray()">Submit</button>
         </div>
       </div>
     </div>
