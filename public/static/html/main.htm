@@ -90,31 +90,42 @@
   <div class="col">
     <div class="row"><h3>RGB Strips</h3><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings" ></span></div>
     <div class="row" style="padding: 10px 0;">
-      <div class="col" style="padding: 2px;" ng-repeat="x in ledArray" ng-click="updatePixelSliderUI($index)"><div style="background: rgb({{x.state.red}},{{x.state.green}},{{x.state.blue}}); height: 50px; width: 100%;"></div></div>
+      <div class="col pixelBox" style="padding: 2px;" ng-repeat="x in ledArray" ng-click="updatePixelSliderUI($index)"><div style="background: rgb({{x.state.red}},{{x.state.green}},{{x.state.blue}}); height: 50px; width: 100%; cursor: pointer;"></div></div>
     </div>
     <div class="row">
       <div class="col-sm-3">
         <div class="row">
-          <div style="border: solid 1px black; margin: 2px;">Single Pixel&nbsp;<input type="radio" name="pixelSelection" ng-model="pixelSelection" value="single"></div>
-          <div style="border: solid 1px black; margin: 2px;">Range&nbsp;<input type="radio" name="pixelSelection" ng-model="pixelSelection" value="range"></div>
-          <div style="border: solid 1px black; margin: 2px;">String&nbsp;<input type="radio" name="pixelSelection" ng-model="pixelSelection" ng-click="updatePixelSliderUI('string')" value="string"></div>
+          <input id="singleSelect" class="pixelSelectionButton" style="position: fixed; visibility: hidden;" type="radio" name="pixelSelection" ng-model="pixelSelection" value="single"/>
+          <label for="singleSelect"  class="col pixelSelectionButton " ng-click="updatePixelSliderUI('input')">Single Pixel</label>
+
+          <input id="rangeSelect" class="pixelSelectionButton" style="position: fixed; visibility: hidden;" type="radio" name="pixelSelection" ng-model="pixelSelection" value="range"/>
+          <label for="rangeSelect"  class="col pixelSelectionButton"  ng-click="updatePixelSliderUI('range')">Range</label>
+
+
+          <input id="fullSliderSelect" class="pixelSelectionButton" style="position: fixed; visibility: hidden;" type="radio" name="pixelSelection" ng-model="pixelSelection" ng-click="updatePixelSliderUI('string')" value="string"/>
+          <label for="fullSliderSelect" class="col pixelSelectionButton " >String</label>
         </div>
         <div ng-switch="pixelSelection">
           <div ng-switch-when="single">
             <div class="row">
-              <label>Pixel:&nbsp;</label><input id="singlePixelInput" value="1" ng-model="pixelIndex" ng-change="updatePixelSliderUI('input')" type="text" />
+              <div class="col" style="padding: 2px;"><input style="width: 100%;" id="singlePixelInput" ng-model="pixelSingleSelection" type="text" /></div><div class="col-sm-3" style="margin: 0; padding: 0;"><input type="button" style="text-align:center; width: 100%; height:100%;" ng-click="updatePixelSliderUI('input')" value="Ok" /></div>
             </div>
           </div>
           <div ng-switch-when="range">
             <div class="row">
-              <p>Range:&nbsp;<input id="rangePixelInput" ng-change="updatePixelSliderUI('range')" ng-model="pixelIndex" type="text" value="1"/>&nbsp;to&nbsp;<input type="text" value="14"/></p>
+              <div class="col" style="padding: 2px;"><input style="width: 100%;" id="rangePixelInput" ng-model="pixelRangeSelection" type="text" /></div><div class="col-sm-3" style="margin: 0; padding: 0;"><input type="button" style="text-align:center; width: 100%; height:100%;" ng-click="updatePixelSliderUI('range')" value="Ok" /></div>
+            </div>
+          </div>
+          <div ng-switch-when="string">
+            <div class="row">
+            <div class="col" style="padding: 2px;"><input style="width: 100%;" id="stringPixelInput" ng-model="pixelStringSelection" type="text" disabled="true"/></div><div class="col-sm-3" style="margin: 0; padding: 0;"><input type="button" style="text-align:center; width: 100%; height:100%;" value="Ok" disabled="true" /></div>
             </div>
           </div>
         </div>
         <div class="row">
-          <div style="border: solid 1px black; margin: 2px;">Rgb&nbsp;<input type="radio" name="rgbInputSelection" ng-model="rgbInputSelection" value="rgb"></div>
-          <div style="border: solid 1px black; margin: 2px;">Hex&nbsp;<input type="radio" name="rgbInputSelection" ng-model="rgbInputSelection" value="hex"></div>
-          <div style="border: solid 1px black; margin: 2px;">Function&nbsp;<input type="radio" name="rgbInputSelection" ng-model="rgbInputSelection" value="function"></div>
+          <div class="col" style="border: solid 1px black; margin: 2px;">Rgb&nbsp;<input type="radio" name="rgbInputSelection" ng-model="rgbInputSelection" value="rgb"></div>
+          <div class="col" style="border: solid 1px black; margin: 2px;">Hex&nbsp;<input type="radio" name="rgbInputSelection" ng-model="rgbInputSelection" value="hex"></div>
+          <div class="col" style="border: solid 1px black; margin: 2px;">Function&nbsp;<input type="radio" name="rgbInputSelection" ng-model="rgbInputSelection" value="function"></div>
         </div>
         <div ng-switch="rgbInputSelection">
           <div ng-switch-when="rgb">

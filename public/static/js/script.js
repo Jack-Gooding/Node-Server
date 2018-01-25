@@ -55,6 +55,8 @@ var tempDevice = [];
 
 
 let ledPixelArray = [];
+let ledPixelArrayStore = [];
+
 for (let i = 0; i < 25; i++) {
     ledPixelArray.push(
       {
@@ -79,16 +81,24 @@ function closeNav() {// Set the width of the side navigation to 0
     document.getElementById("mySidenav").style.width = "0";
 };
 
+
+var ctrlIsPressed = false;
+var shiftIsPressed = false;
+
 $(document).keydown(function(event){
-    if(event.which=="17")
+    if (event.which=="17") {
         ctrlIsPressed = true;
+      };
+    if (event.which=="16") {
+        shiftIsPressed = true;
+    };
 });
 
 $(document).keyup(function(){
     ctrlIsPressed = false;
+    shiftIsPressed = false;
 });
 
-var ctrlIsPressed = false;
 
 
 
@@ -243,6 +253,13 @@ AngularApp.controller('AngularApp', function($scope, $compile) {
       $scope.pixelBlue=175;
 
       $scope.pixelIndex = [0,]; //Translate which Pixel is selected
+      $scope.pixelIndexStore;
+      $scope.lastPixelIndex;
+
+      $scope.pixelSingleSelection = 1;
+      $scope.pixelRangeSelection = "0-5";
+      $scope.pixelStringSelection = "N/A";
+
 
       $scope.updateLedArray = function() { //changes the associated Pixel to match the Sliders
         for (let i = 0; i < $scope.pixelIndex.length; i++) {
@@ -252,23 +269,57 @@ AngularApp.controller('AngularApp', function($scope, $compile) {
         }
       };
       $scope.updatePixelSliderUI = function(index) { //Changes which Pixel is selected,and updates the Sliders to match
-        $scope.pixelIndex = $scope.pixelIndex.slice(0,1);
+
+        if (!(ctrlIsPressed || shiftIsPressed)) {
+          $scope.pixelIndex = $scope.pixelIndex.slice(0,0);
+        };
+
         if (index === 'input') {
-          $scope.pixelIndex[0] = document.getElementById("singlePixelInput").value;
+          x = document.getElementById("singlePixelInput").value;
+          $scope.pixelIndex[0] = x;
+          $scope.pixelSingleSelection = x;
         } else if (index === 'range') {
-          pixelRange = document.getElementById("rangePixelInput").value;
-          pixelRange = pixelRange.split('-');
-          pixelRangeStart = parseInt(pixelRange[0]);
-          pixelRange = parseInt(pixelRange[1]);
-          for (let i = 0; i < pixelRange; i++) {
-            $scope.pixelIndex[i] = pixelRangeStart + i;
-          };
+          x = document.getElementById("rangePixelInput").value;
+          pixelRange = x;
+          $scope.pixelRangeSelection = x;
+          if (pixelRange.includes('-')) {
+            pixelRange = pixelRange.split('-');
+            pixelRangeStart = parseInt(pixelRange[0]);
+            pixelRange = parseInt(pixelRange[1]);
+            for (let i = 0; i < pixelRange; i++) {
+              $scope.pixelIndex[i] = pixelRangeStart + i;
+            };
+          } else if (pixelRange.includes(':')) {
+            pixelRange = pixelRange.split(':');
+            pixelRangeStart = parseInt(pixelRange[0]);
+            pixelRange = parseInt(pixelRange[1]);
+            pixelRange = pixelRange - pixelRangeStart;
+            for (let i = 0; i <= pixelRange; i++) {
+              $scope.pixelIndex[i] = pixelRangeStart + i;
+            };
+          }
         } else if (index === 'string') {
             for (let i = 0; i < 25; i++) {
               $scope.pixelIndex[i] = i;
             }
         } else {
-          $scope.pixelIndex[0] = index;
+          $scope.lastPixelIndex = $scope.pixelIndex.slice(-1)[0];
+          if (ctrlIsPressed) {
+            $scope.pixelIndex.push(index);
+          }
+          else if (shiftIsPressed) {
+            $scope.pixelIndexStore = $scope.pixelIndex.slice(0,1);
+            let shiftStringLength =  Math.abs(index - $scope.pixelIndexStore);
+            let tempStore = [];
+            startPoint = (index > $scope.pixelIndexStore) ? $scope.lastPixelIndex : index;
+            for (let i = 0; i <= shiftStringLength; i++) {
+              tempStore.push(startPoint+i);
+            };
+            $scope.pixelIndex = tempStore;
+          }
+          else {
+            $scope.pixelIndex[0] = index;
+        }
         };
         $scope.pixelRed = $scope.ledArray[$scope.pixelIndex[0]].state.red;
         $scope.pixelGreen = $scope.ledArray[$scope.pixelIndex[0]].state.green;
