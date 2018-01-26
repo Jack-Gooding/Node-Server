@@ -84,6 +84,7 @@ function closeNav() {// Set the width of the side navigation to 0
 
 var ctrlIsPressed = false;
 var shiftIsPressed = false;
+var altIsPressed = false;
 
 $(document).keydown(function(event){
     if (event.which=="17") {
@@ -92,19 +93,23 @@ $(document).keydown(function(event){
     if (event.which=="16") {
         shiftIsPressed = true;
     };
+    if (event.which=="16") {
+        shiftIsPressed = true;
+    };
+    if (event.which=="18") {
+        altIsPressed = true;
+    };
 });
 
 $(document).keyup(function(){
     ctrlIsPressed = false;
     shiftIsPressed = false;
+    altIsPressed = false;
 });
-
-
-
 
 var AngularApp = angular.module('Angular', ["ngRoute"]);
 var extScope;
-AngularApp.controller('AngularApp', function($scope, $compile) {
+AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
   //Camera
   $scope.motionDetect = false;
   $scope.motionDetectOn = function() {
@@ -260,17 +265,79 @@ AngularApp.controller('AngularApp', function($scope, $compile) {
       $scope.pixelRangeSelection = "0-5";
       $scope.pixelStringSelection = "N/A";
 
+      $scope.flashIndex = [];
+      $scope.blinkOnOff = true;
+      $scope.blink = null;
+      $scope.blinkOn = function() {
 
-      $scope.updateLedArray = function() { //changes the associated Pixel to match the Sliders
-        for (let i = 0; i < $scope.pixelIndex.length; i++) {
-          $scope.ledArray[$scope.pixelIndex[i]].state.red = $scope.pixelRed;
-          $scope.ledArray[$scope.pixelIndex[i]].state.green = $scope.pixelGreen;
-          $scope.ledArray[$scope.pixelIndex[i]].state.blue = $scope.pixelBlue;
+          $scope.flashIndex = $scope.pixelIndex;
+
+        if (angular.isDefined($scope.blink)) {
+              $interval.cancel($scope.blink);
+              for (let i = 0; i < $scope.ledArray.length; i++) {
+                if ($scope.ledArray[i].state.savedTemp) {
+                $scope.ledArray[i].state.red = $scope.ledArray[i].state.redTemp;
+                $scope.ledArray[i].state.green = $scope.ledArray[i].state.greenTemp;
+                $scope.ledArray[i].state.blue = $scope.ledArray[i].state.blueTemp;
+              };
+            };
         }
-      };
+
+
+            $scope.blink = $interval(function() {
+                if ($scope.blinkOnOff) {
+                  $("body").append("on");
+                  for (let i = 0; i < $scope.ledArray.length; i++) {
+                    $scope.ledArray[i].state.redTemp = $scope.ledArray[i].state.red;
+                    $scope.ledArray[i].state.greenTemp = $scope.ledArray[i].state.green;
+                    $scope.ledArray[i].state.blueTemp = $scope.ledArray[i].state.blue;
+                    $scope.ledArray[i].state.savedTemp = true;
+                  }
+                  for (let i = 0; i < $scope.flashIndex.length; i++) {
+                    $scope.ledArray[$scope.flashIndex[i]].state.red = 0;
+                    $scope.ledArray[$scope.flashIndex[i]].state.green = 0;
+                    $scope.ledArray[$scope.flashIndex[i]].state.blue = 0;
+                  };
+                  $scope.blinkOnOff = false;
+                  $scope.emitPixelArray();
+                } else {
+                  $("body").append("off");
+                  for (let i = 0; i < $scope.flashIndex.length; i++) {
+                    if ($scope.ledArray[$scope.flashIndex[i]].state.savedTemp) {
+                    $scope.ledArray[$scope.flashIndex[i]].state.red = $scope.ledArray[$scope.flashIndex[i]].state.redTemp;
+                    $scope.ledArray[$scope.flashIndex[i]].state.green = $scope.ledArray[$scope.flashIndex[i]].state.greenTemp;
+                    $scope.ledArray[$scope.flashIndex[i]].state.blue = $scope.ledArray[$scope.flashIndex[i]].state.blueTemp;
+                    }
+                  };
+                  $scope.blinkOnOff = true;
+                }
+              },1000);
+
+
+        };
+        $scope.blinkOff = function() {
+          if (angular.isDefined($scope.blink)) {
+            for (let i = 0; i < $scope.ledArray.length; i++) {
+              $scope.ledArray[i].state.red = $scope.ledArray[i].state.redTemp;
+              $scope.ledArray[i].state.green = $scope.ledArray[i].state.greenTemp;
+              $scope.ledArray[i].state.blue = $scope.ledArray[i].state.blueTemp;
+            };
+              $interval.cancel($scope.blink);
+          }
+        };
+        $scope.updateLedArray = function() { //changes the associated Pixel to match the Sliders
+          for (let i = 0; i < $scope.pixelIndex.length; i++) {
+            $scope.ledArray[$scope.pixelIndex[i]].state.red = $scope.pixelRed;
+            $scope.ledArray[$scope.pixelIndex[i]].state.green = $scope.pixelGreen;
+            $scope.ledArray[$scope.pixelIndex[i]].state.blue = $scope.pixelBlue;
+            $scope.ledArray[$scope.pixelIndex[i]].state.redTemp = $scope.ledArray[$scope.pixelIndex[i]].state.red;
+            $scope.ledArray[$scope.pixelIndex[i]].state.greenTemp = $scope.ledArray[$scope.pixelIndex[i]].state.green;
+            $scope.ledArray[$scope.pixelIndex[i]].state.blueTemp = $scope.ledArray[$scope.pixelIndex[i]].state.blue;
+          }
+        };
       $scope.updatePixelSliderUI = function(index) { //Changes which Pixel is selected,and updates the Sliders to match
 
-        if (!(ctrlIsPressed || shiftIsPressed)) {
+        if (!(ctrlIsPressed || shiftIsPressed || altIsPressed)) {
           $scope.pixelIndex = $scope.pixelIndex.slice(0,0);
         };
 
@@ -317,6 +384,10 @@ AngularApp.controller('AngularApp', function($scope, $compile) {
             };
             $scope.pixelIndex = tempStore;
           }
+          else if (altIsPressed) {
+            var a = $scope.pixelIndex.indexOf(index);
+            $scope.pixelIndex.splice(a,1);
+          }
           else {
             $scope.pixelIndex[0] = index;
         }
@@ -325,6 +396,8 @@ AngularApp.controller('AngularApp', function($scope, $compile) {
         $scope.pixelGreen = $scope.ledArray[$scope.pixelIndex[0]].state.green;
         $scope.pixelBlue = $scope.ledArray[$scope.pixelIndex[0]].state.blue;
       };
+
+
       $scope.emitPixelArray = function() {
         socket.emit('sendPixelArray', ledPixelArray);
       };
