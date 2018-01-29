@@ -6,13 +6,13 @@
 
  * Controls Data logging for various sensors:
 
-    * - Room Temperature
+     - Room Temperature
 
-    * - External Temperature (soon)
+     - External Temperature (soon)
 
-    * - Rain Sensor (soon)
+     - Rain Sensor (soon)
 
-    * - Proximity Sensor (soon)
+     - Proximity Sensor (soon)
 
  * Raspberry Pi Camera Control, and photo logging
 
@@ -61,6 +61,6 @@
 
  ## Authors
 
- * **Jack Gooding** - *Initial work* - [PurpleBooth](https://github.com/ironcladjack)
+ * **Jack Gooding** - [Github](https://github.com/ironcladjack)
 
  See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.

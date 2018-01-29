@@ -125,7 +125,7 @@
         <div class="row">
           <div class="col" style="border: solid 1px black; margin: 2px;">Rgb&nbsp;<input type="radio" name="rgbInputSelection" ng-model="rgbInputSelection" value="rgb"></div>
           <div class="col" style="border: solid 1px black; margin: 2px;">Hex&nbsp;<input type="radio" name="rgbInputSelection" ng-model="rgbInputSelection" value="hex"></div>
-          <div class="col" ng-click="blinkOff()" style="border: solid 1px black; margin: 2px;">Function&nbsp;<input type="radio" name="rgbInputSelection" ng-model="rgbInputSelection" value="function"></div>
+          <div class="col" style="border: solid 1px black; margin: 2px;">Function&nbsp;<input type="radio" name="rgbInputSelection" ng-model="rgbInputSelection" value="function"></div>
         </div>
         <div ng-switch="rgbInputSelection">
           <div ng-switch-when="rgb">
@@ -145,6 +145,20 @@
               <label >function: &nbsp;</label><textarea value="#"/>
             </div>
         </div>
+        <div class="row">
+          <div class="col">
+              <select id="neoPixelEffect">
+                <option value="Blink (off)" >Blink (off)</option>
+                <option value="Blink (random,all,full)" >Blink (random,all)</option>
+                <option value="Blink (random,all,small)" >Blink (random,all)</option>
+                <option value="Blink (random,each,full)" >Blink (random,each)</option>
+                <option value="Blink (random,each,small)" >Blink (random,each)</option>
+                
+              </select>
+              <button type="submit" ng-click="neoPixelEffect()"> Let's do it </button>
+              <button value="clear" ng-click="clearNeoPixelEffect()">clear</button>
+          </div>
+        </div>
       </div>
     </div>
       <div class="col">
@@ -154,7 +168,7 @@
       </div>
       <div class="col-sm-3">
         <div class="row" style="height: 80%">
-          <div ng-click="blinkOn()" style="width: 100%; height: 100%; background: rgb({{pixelRed}},{{pixelGreen}},{{pixelBlue}});"></div>
+          <div style="width: 100%; height: 100%; background: rgb({{pixelRed}},{{pixelGreen}},{{pixelBlue}});"></div>
         </div>
         <div class="row" style="text-align:center;">
           <button style="text-align:center; width: 100%;" value="submit" ng-click="emitPixelArray()">Submit</button>
@@ -165,9 +179,13 @@
 </div>
 <div class="row main-content">
   <h3>Blind Motor (soon) </h3>
+  <div id="testing"></div>
 </div>
 <div class="row main-content">
   <h3>Desktop Control (soon) </h3>
 </div>
 </body>
 </html>
+<script>
+
+</script>

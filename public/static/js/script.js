@@ -72,6 +72,83 @@ for (let i = 0; i < 25; i++) {
 
 
 
+let cieRGB = "wrong";
+
+/**
+ * Converts CIE color space to RGB color space
+ * @param {Number} x
+ * @param {Number} y
+ * @param {Number} brightness - Ranges from 1 to 254
+ * @return {Array} Array that contains the color values for red, green and blue
+ */
+function cie_to_rgb(x, y, brightness)
+{
+	//Set to maximum brightness if no custom value was given (Not the slick ECMAScript 6 way for compatibility reasons)
+	if (brightness === undefined) {
+		brightness = 254;
+	}
+
+	var z = 1.0 - x - y;
+	var Y = (brightness / 254).toFixed(2);
+	var X = (Y / y) * x;
+	var Z = (Y / y) * z;
+
+	//Convert to RGB using Wide RGB D65 conversion
+	var red 	=  X * 1.656492 - Y * 0.354851 - Z * 0.255038;
+	var green 	= -X * 0.707196 + Y * 1.655397 + Z * 0.036152;
+	var blue 	=  X * 0.051713 - Y * 0.121364 + Z * 1.011530;
+
+	//If red, green or blue is larger than 1.0 set it back to the maximum of 1.0
+	if (red > blue && red > green && red > 1.0) {
+
+		green = green / red;
+		blue = blue / red;
+		red = 1.0;
+	}
+	else if (green > blue && green > red && green > 1.0) {
+
+		red = red / green;
+		blue = blue / green;
+		green = 1.0;
+	}
+	else if (blue > red && blue > green && blue > 1.0) {
+
+		red = red / blue;
+		green = green / blue;
+		blue = 1.0;
+	}
+
+	//Reverse gamma correction
+	red 	= red <= 0.0031308 ? 12.92 * red : (1.0 + 0.055) * Math.pow(red, (1.0 / 2.4)) - 0.055;
+	green 	= green <= 0.0031308 ? 12.92 * green : (1.0 + 0.055) * Math.pow(green, (1.0 / 2.4)) - 0.055;
+	blue 	= blue <= 0.0031308 ? 12.92 * blue : (1.0 + 0.055) * Math.pow(blue, (1.0 / 2.4)) - 0.055;
+
+
+	//Convert normalized decimal to decimal
+	red 	= Math.round(red * 255);
+	green 	= Math.round(green * 255);
+	blue 	= Math.round(blue * 255);
+
+	if (isNaN(red))
+		red = 0;
+
+	if (isNaN(green))
+		green = 0;
+
+	if (isNaN(blue))
+		blue = 0;
+
+
+	return "rgb("+red+","+green+","+blue+")";
+
+}
+
+//document.getElementById("testing").innerHTML = "Paragraph changed!";
+let rgb = cie_to_rgb(0.2, 0.7, 54);
+$(document).ready(function() {
+  $("body").append(rgb);
+});
+
 function openNav() { // Set the width of the side navigation to 250px
     document.getElementById("mySidenav").style.width = "250px";
 };
@@ -79,6 +156,10 @@ function openNav() { // Set the width of the side navigation to 250px
 
 function closeNav() {// Set the width of the side navigation to 0
     document.getElementById("mySidenav").style.width = "0";
+};
+
+let randRGBCol = function () {
+  return Math.floor(Math.random()*255);
 };
 
 
@@ -268,7 +349,31 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
       $scope.flashIndex = [];
       $scope.blinkOnOff = true;
       $scope.blink = null;
-      $scope.blinkOn = function() {
+      $scope.neoPixelEffect = function() {
+        effect = document.getElementById("neoPixelEffect").value;
+        switch (effect) {
+          case "Blink (off)":
+            $scope.blinkOn("onOff");
+            break;
+          case "Blink (random,each,full)":
+            $scope.blinkOn("random,each,full");
+            break;
+          case "Blink (random,each,small)":
+            $scope.blinkOn("random,each,small");
+            break;
+          case "Blink (random,all,full)":
+            $scope.blinkOn("random,all");
+            break;
+          case "Blink (random,all,small)":
+            $scope.blinkOn("random,all");
+            break;
+        }
+      };
+      $scope.clearNeoPixelEffect = function() {
+        $scope.blinkOff();
+      };
+
+      $scope.blinkOn = function(effect) {
 
           $scope.flashIndex = $scope.pixelIndex;
 
@@ -293,12 +398,53 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
                     $scope.ledArray[i].state.blueTemp = $scope.ledArray[i].state.blue;
                     $scope.ledArray[i].state.savedTemp = true;
                   }
-                  for (let i = 0; i < $scope.flashIndex.length; i++) {
-                    $scope.ledArray[$scope.flashIndex[i]].state.red = 0;
-                    $scope.ledArray[$scope.flashIndex[i]].state.green = 0;
-                    $scope.ledArray[$scope.flashIndex[i]].state.blue = 0;
+                  switch (effect) {
+                    case "onOff":
+                      for (let i = 0; i < $scope.flashIndex.length; i++) {
+                        $scope.ledArray[$scope.flashIndex[i]].state.red = 0;
+                        $scope.ledArray[$scope.flashIndex[i]].state.green = 0;
+                        $scope.ledArray[$scope.flashIndex[i]].state.blue = 0;
+                      };
+                      $scope.blinkOnOff = false;
+                      break;
+                    case "random,all,full":
+                      r = randRGBCol();
+                      g = randRGBCol();
+                      b = randRGBCol();
+                      for (let i = 0; i < $scope.flashIndex.length; i++) {
+                        $scope.ledArray[$scope.flashIndex[i]].state.red = r;
+                        $scope.ledArray[$scope.flashIndex[i]].state.green = g;
+                        $scope.ledArray[$scope.flashIndex[i]].state.blue = b;
+                      }
+                      break;
+                    case "random,all,small":
+                      for (let i = 0; i < $scope.flashIndex.length; i++) {
+                        $scope.ledArray[$scope.flashIndex[i]].state.red = (Math.round(Math.random()) === 1) ? $scope.ledArray[$scope.flashIndex[i]].state.red + 10 : $scope.ledArray[$scope.flashIndex[i]].state.red - 10;;
+                        $scope.ledArray[$scope.flashIndex[i]].state.green = (Math.round(Math.random()) === 1) ? $scope.ledArray[$scope.flashIndex[i]].state.green + 10 : $scope.ledArray[$scope.flashIndex[i]].state.green - 10;;
+                        $scope.ledArray[$scope.flashIndex[i]].state.blue = (Math.round(Math.random()) === 1) ? $scope.ledArray[$scope.flashIndex[i]].state.blue + 10 : $scope.ledArray[$scope.flashIndex[i]].state.blue - 10;;
+                      }
+                      break;
+                    case "random,each,full":
+                      for (let i = 0; i < $scope.flashIndex.length; i++) {
+                        $scope.ledArray[$scope.flashIndex[i]].state.red = Math.floor(Math.random()*255);
+                        $scope.ledArray[$scope.flashIndex[i]].state.green = Math.floor(Math.random()*255);
+                        $scope.ledArray[$scope.flashIndex[i]].state.blue = Math.floor(Math.random()*255);
+                      };
+                      break;
+                    case "random,each,small":
+                      for (let i = 0; i < $scope.flashIndex.length; i++) {
+                        $scope.ledArray[$scope.flashIndex[i]].state.red = (Math.round(Math.random()) === 1) ? $scope.ledArray[$scope.flashIndex[i]].state.red + 10 : $scope.ledArray[$scope.flashIndex[i]].state.red - 10;
+                        $scope.ledArray[$scope.flashIndex[i]].state.green = (Math.round(Math.random()) === 1) ? $scope.ledArray[$scope.flashIndex[i]].state.green + 10 : $scope.ledArray[$scope.flashIndex[i]].state.green - 10;
+                        $scope.ledArray[$scope.flashIndex[i]].state.blue = (Math.round(Math.random()) === 1) ? $scope.ledArray[$scope.flashIndex[i]].state.blue + 10 : $scope.ledArray[$scope.flashIndex[i]].state.blue - 10;
+                      }
+                      break;
+                    default:
+                      for (let i = 0; i < $scope.flashIndex.length; i++) {
+                        $scope.ledArray[$scope.flashIndex[i]].state.red = 255;
+                        $scope.ledArray[$scope.flashIndex[i]].state.green = 0;
+                        $scope.ledArray[$scope.flashIndex[i]].state.blue = 0;
+                      };
                   };
-                  $scope.blinkOnOff = false;
                   $scope.emitPixelArray();
                 } else {
                   $("body").append("off");
@@ -404,6 +550,10 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
       extScope = $scope; //allows access to the $scope object outside of the Angular Contructor
 });
 
+let neoPixelEffect = function(effect) {
+  alert(effect);
+  //extScope.neoPixelEffect(effect);
+};
 
 AngularApp.config(function($routeProvider) { //Angular routing provides these HTML docs to "<ng-view></ng-view>" element
   $routeProvider

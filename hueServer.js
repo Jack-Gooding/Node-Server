@@ -56,8 +56,11 @@ redRGB = 0, //set starting value of RED variable to off (0 for common cathode)
 greenRGB = 0, //set starting value of GREEN variable to off (0 for common cathode)
 blueRGB = 0; //set starting value of BLUE variable to off (0 for common cathode)
 
+let x;
+
 var displayResult = function(result) {
     console.log(JSON.stringify(result, null, 2));
+    x = rgb;
 };
 
 var displayResult2 = function(result) {
@@ -103,7 +106,7 @@ api.lights(function(err, devices, getRGB) {
   console.log(lightStatus);
 
 });
-
+api.getHueRGB(4).then(displayResult);
 api.lights();
 
 
@@ -124,7 +127,7 @@ io.on('connection', function(socket){
 
   socket.emit("hueLightStatus", lightStatus);
 
-  
+
   socket.on("takePhoto", function() {
     takePhoto(displayPhoto);
     console.log("Photo taken manually!");
