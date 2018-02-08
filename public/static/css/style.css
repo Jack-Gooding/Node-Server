@@ -8,6 +8,11 @@ overflow-x: hidden;
   padding: 0;
 }
 
+.device:focus
+{
+ text-align:right;
+}
+
 .header-bar {
   background: white;
   padding: 0 10px;
