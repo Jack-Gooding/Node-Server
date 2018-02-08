@@ -8,7 +8,7 @@ overflow-x: hidden;
   padding: 0;
 }
 
-.device:focus
+#resizable > div.col > div:nth-child(2) > div.col > div:nth-child(1) > div > div > div:nth-child(1) > div:nth-child(1) > p:focus
 {
  text-align: right;
  font color: red;
