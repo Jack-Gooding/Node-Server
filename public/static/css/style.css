@@ -11,7 +11,7 @@ overflow-x: hidden;
 .device:focus
 {
  text-align: right;
-  text-color: red;
+ font color: red;
 }
 
 .header-bar {
