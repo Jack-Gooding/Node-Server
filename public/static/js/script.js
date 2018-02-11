@@ -109,6 +109,12 @@ $(document).keyup(function(){
 
 var AngularApp = angular.module('Angular', ["ngRoute"]);
 var extScope;
+$('.device p').click(function(){
+    $(this)
+        .css('font-color','red')
+        .siblings()
+        .css('font-color','blue');
+});
 AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
   //Camera
   $scope.motionDetect = false;
@@ -163,6 +169,7 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
         rgbDevice = $scope.devices;
         socket.emit("rgbLed", rgbDevice);
       };
+
       $scope.dblclickOnOff = function(index) {  // If a device is double clicked, toggle 'ON' status of lights.
         if ($scope.devices[index].state.on) {
           $scope.devices[index].state.on = false;
@@ -222,10 +229,10 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
             }
         	},
         	mouseleave: function() {
-        		$(this).css("color","red");
+        		$(this).css("color","blue");
         	},
         	mouseenter: function() {
-        		$(this).css("color","blue");
+        		$(this).css("color","red");
         	},
         });
       };
@@ -430,18 +437,16 @@ $(document).ready(function() {
 
 $(".device").on({
     mouseenter: function() {
-        $(this).css("transform","translateY(-1px)");
+        $(this).css("");
     },
     mouseleave: function() {
-        $(this).css("transform","translateY(0px)");
+        $(this).css("");
     },
     mousedown: function() {
-        $(this).css("border-color","blue");
+        $(this).css("transform","scale(1.05)");
+        $(this).siblings().css("transform","scale(0.95)");
         let newDevice = $(this).attr("value");
         rgb.device = newDevice;
-    },
-    mouseup: function() {
-        $(this).css("border-color","white");
     },
 });
 
