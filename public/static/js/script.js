@@ -443,8 +443,8 @@ $(".device").on({
         $(this).css("");
     },
     mousedown: function() {
-      $(".device").css("transform","scale(1)");
-      $(this).css("transform","scale(1.05)");
+      $(this).css("transform","scale(1.1)");
+      $(this).siblings().css("transform","scale(1)");
       let newDevice = $(this).attr("value");
       rgb.device = newDevice;
         },
