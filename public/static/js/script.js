@@ -432,7 +432,7 @@ AngularApp.config(function($routeProvider) { //Angular routing provides these HT
 window.addEventListener("load", function(){ //when page loads
 
 });
-
+// On click/hover effects of device buttons
 $(document).ready(function() {
 
 $(".device").on({
@@ -448,6 +448,13 @@ $(".device").on({
       let newDevice = $(this).attr("value");
       rgb.device = newDevice;
         },
+});
+
+// dan test jquery
+$( ".device" ).on("dblclick", function(){
+  if ( $(this).hasClass('grey') ) {
+    $(this).css("background","grey");
+}
 });
 
 //Attach id="resizable" to an element to have it be vertially resizable.
