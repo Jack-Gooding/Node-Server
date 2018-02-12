@@ -12,7 +12,7 @@
     <div class="row">
       <div class="col">
         <div class="row device-box">
-          <div  class="col device" ng-click="updateSliderUI(deviceName, $index)" ng-dblclick="dblclickOnOff($index)" ng-repeat="deviceName in devices" style="background:{{deviceName.state.rgb}}; color: rgb({{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[0]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[1]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[2]}})">
+          <div  class="col device" data="{{$index}}" ng-click="updateSliderUI(deviceName, $index)" ng-dblclick="dblclickOnOff($index)" ng-repeat="deviceName in devices" style="background:{{deviceName.state.rgb}}; color: rgb({{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[0]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[1]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[2]}})">
             <div>
               <img src="./static/images/lightbulbOFF.ico" style="max-height: 20px; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); -moz-user-select: none;" ng-show="!=deviceName.state.on">
               <img src="./static/images/lightbulbON.ico" style="max-height: 20px; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); -moz-user-select: none;" ng-show="deviceName.state.on">

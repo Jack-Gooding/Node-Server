@@ -452,8 +452,12 @@ $(".device").on({
 
 // dan test jquery
 $( ".device" ).on("dblclick", function(){
-  if ( $(this).hasClass('grey') ) {
+  if ( !$(this).hasClass('grey') ) {
+    $(this).addClass('grey');
     $(this).css("background","grey");
+} else {
+    $(this).removeClass('grey');
+    $(this).css("background",extScope.devices[$(this).attr("data")].state.rgb);
 }
 });
 
