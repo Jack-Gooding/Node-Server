@@ -118,10 +118,6 @@ border-radius: 5px;
   background: pink;
 }
 
- *:hover {
- //border: solid 1px grey;
-}
-
 
 /* The side navigation menu */
 .sidenav {
@@ -173,11 +169,17 @@ border-radius: 5px;
   color: grey;
 }
 
-.frequent-colour-container > div {
+.pixelBox {
   min-height: 50px;
-  margin: 1%;
-  border: solid 1px black;
+  border: solid 1px grey;
   border-radius: 5px;
+  padding: 1px;
+  margin: 0 1px;
+}
+
+.pixelBox-active {
+  border: solid 2px black;
+  margin: 0;
 }
 
 .randomise {
@@ -189,11 +191,14 @@ border-radius: 5px;
 .save-colour-block {
   margin: 0;
   padding: 0;
+  width: 100%;
   overflow: hidden;
   -moz-user-select: none;
 }
 
 .save-colour-block > div {
+  margin: 0;
+  padding: 0;
   text-align: center;
   position: absolute;
   width: 100%;

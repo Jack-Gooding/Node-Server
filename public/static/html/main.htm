@@ -90,20 +90,19 @@
   <div class="col">
     <div class="row"><h3>RGB Strips</h3><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings" ></span></div>
     <div class="row" style="padding: 10px 0;">
-      <div class="col pixelBox" style="padding: 2px;" ng-repeat="x in ledArray" ng-click="updatePixelSliderUI($index)"><div style="background: rgb({{x.state.red}},{{x.state.green}},{{x.state.blue}}); height: 50px; width: 100%; cursor: pointer;"></div></div>
+      <div class="col pixelBox pixelBox-active" data="{{$index}}" ng-repeat="x in ledArray" ng-click="updatePixelSliderUI($index)"><div style="background: rgb({{x.state.red}},{{x.state.green}},{{x.state.blue}}); height: 50px; width: 100%; cursor: pointer; border-radius: 5px;"></div></div>
     </div>
     <div class="row">
       <div class="col-sm-3">
         <div class="row">
-          <input id="singleSelect" class="pixelSelectionButton" style="position: fixed; visibility: hidden;" type="radio" name="pixelSelection" ng-model="pixelSelection" value="single"/>
-          <label for="singleSelect"  class="col pixelSelectionButton " ng-click="updatePixelSliderUI('input')">Single Pixel</label>
+          <input id="fullSliderSelect" class="pixelSelectionButton" style="position: fixed; visibility: hidden;" type="radio" name="pixelSelection" ng-model="pixelSelection" value="string"/>
+          <label for="fullSliderSelect" class="col pixelSelectionButton " ng-click="updatePixelSliderUI('string')" >String</label>
 
           <input id="rangeSelect" class="pixelSelectionButton" style="position: fixed; visibility: hidden;" type="radio" name="pixelSelection" ng-model="pixelSelection" value="range"/>
           <label for="rangeSelect"  class="col pixelSelectionButton"  ng-click="updatePixelSliderUI('range')">Range</label>
 
-
-          <input id="fullSliderSelect" class="pixelSelectionButton" style="position: fixed; visibility: hidden;" type="radio" name="pixelSelection" ng-model="pixelSelection" ng-click="updatePixelSliderUI('string')" value="string"/>
-          <label for="fullSliderSelect" class="col pixelSelectionButton " >String</label>
+          <input id="singleSelect" class="pixelSelectionButton" style="position: fixed; visibility: hidden;" type="radio" name="pixelSelection" ng-model="pixelSelection" value="single"/>
+          <label for="singleSelect"  class="col pixelSelectionButton " ng-click="updatePixelSliderUI('input')">Single Pixel</label>
         </div>
         <div ng-switch="pixelSelection">
           <div ng-switch-when="single">
@@ -153,7 +152,7 @@
                 <option value="Blink (random,all,small)" >Blink (random,all)</option>
                 <option value="Blink (random,each,full)" >Blink (random,each)</option>
                 <option value="Blink (random,each,small)" >Blink (random,each)</option>
-                
+
               </select>
               <button type="submit" ng-click="neoPixelEffect()"> Let's do it </button>
               <button value="clear" ng-click="clearNeoPixelEffect()">clear</button>

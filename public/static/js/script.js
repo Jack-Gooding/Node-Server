@@ -174,18 +174,29 @@ $(document).keydown(function(event){
     if (event.which=="16") {
         shiftIsPressed = true;
     };
-    if (event.which=="16") {
-        shiftIsPressed = true;
-    };
+
     if (event.which=="18") {
         altIsPressed = true;
     };
 });
 
-$(document).keyup(function(){
-    ctrlIsPressed = false;
-    shiftIsPressed = false;
-    altIsPressed = false;
+$(document).keyup(function(event){
+    if (event.which=="17") {
+        ctrlIsPressed = false;
+      };
+    if (event.which=="16") {
+        shiftIsPressed = false;
+    };
+
+    if (event.which=="18") {
+        altIsPressed = false;
+    };
+});
+
+$(window).blur(function(){
+  ctrlIsPressed = false;
+  shiftIsPressed = false;
+  altIsPressed = false;
 });
 
 var AngularApp = angular.module('Angular', ["ngRoute"]);
@@ -340,12 +351,15 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
 
       $scope.ledArray = ledPixelArray;
 
-      $scope.pixelSelection = "single";
+      $scope.pixelSelection = "string";
       $scope.pixelRed=245;
       $scope.pixelGreen=115;
       $scope.pixelBlue=175;
 
-      $scope.pixelIndex = [0,]; //Translate which Pixel is selected
+      $scope.pixelIndex = []; //Translate which Pixel is selected
+      for (x in ledPixelArray) {
+        $scope.pixelIndex.push(x);
+      };
       $scope.pixelIndexStore;
       $scope.lastPixelIndex;
 
@@ -492,12 +506,15 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
 
         if (!(ctrlIsPressed || shiftIsPressed || altIsPressed)) {
           $scope.pixelIndex = $scope.pixelIndex.slice(0,0);
+          $(".pixelBox").removeClass("pixelBox-active");
         };
 
         if (index === 'input') {
           x = document.getElementById("singlePixelInput").value;
           $scope.pixelIndex[0] = x;
           $scope.pixelSingleSelection = x;
+          $(".pixelBox[data='" + x +"']").addClass("pixelBox-active");
+
         } else if (index === 'range') {
           x = document.getElementById("rangePixelInput").value;
           pixelRange = x;
@@ -521,28 +538,49 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
         } else if (index === 'string') {
             for (let i = 0; i < 25; i++) {
               $scope.pixelIndex[i] = i;
+              $(".pixelBox[data='" + i +"']").addClass("pixelBox-active");
+
             }
         } else {
           $scope.lastPixelIndex = $scope.pixelIndex.slice(-1)[0];
-          if (ctrlIsPressed) {
+          if (ctrlIsPressed && shiftIsPressed) {
+            //$scope.pixelIndexStore = $scope.pixelIndex.slice(0,1);
+            let shiftStringLength =  Math.abs(index - $scope.lastPixelIndex);
+            let tempStore = [];
+            startPoint = (index > $scope.lastPixelIndex) ? $scope.lastPixelIndex : index;
+            for (let i = 0; i <= shiftStringLength; i++) {
+              let arrayValToPush = startPoint+i;
+              tempStore.push(arrayValToPush);
+              $(".pixelBox[data='" +arrayValToPush+"']").addClass("pixelBox-active");
+            };
+            $scope.pixelIndex = $scope.pixelIndex.concat(tempStore);
+          }
+          else if (ctrlIsPressed) {
             $scope.pixelIndex.push(index);
+            $(".pixelBox[data='" + index +"']").addClass("pixelBox-active");
           }
           else if (shiftIsPressed) {
-            $scope.pixelIndexStore = $scope.pixelIndex.slice(0,1);
-            let shiftStringLength =  Math.abs(index - $scope.pixelIndexStore);
+            //$scope.pixelIndexStore = $scope.pixelIndex.slice(0,1);
+            $scope.pixelIndex = [$scope.lastPixelIndex];
+            $(".pixelBox").removeClass("pixelBox-active");
+            let shiftStringLength =  Math.abs(index - $scope.lastPixelIndex);
             let tempStore = [];
-            startPoint = (index > $scope.pixelIndexStore) ? $scope.lastPixelIndex : index;
+            startPoint = (index > $scope.lastPixelIndex) ? $scope.lastPixelIndex : index;
             for (let i = 0; i <= shiftStringLength; i++) {
-              tempStore.push(startPoint+i);
+              let arrayValToPush = startPoint+i;
+              tempStore.push(arrayValToPush);
+              $(".pixelBox[data='" +arrayValToPush+"']").addClass("pixelBox-active");
             };
             $scope.pixelIndex = tempStore;
           }
           else if (altIsPressed) {
             var a = $scope.pixelIndex.indexOf(index);
             $scope.pixelIndex.splice(a,1);
+            $(".pixelBox[data='" + index +"']").removeClass("pixelBox-active");
           }
           else {
             $scope.pixelIndex[0] = index;
+            $(".pixelBox[data='" + index +"']").addClass("pixelBox-active");
         }
         };
         $scope.pixelRed = $scope.ledArray[$scope.pixelIndex[0]].state.red;
