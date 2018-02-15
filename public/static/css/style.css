@@ -18,19 +18,14 @@ overflow-x: hidden;
   padding-left: 0px;
 }
 
-.navbar{
+.navbar {
   background: #282828;
   height: 50px;
 }
 
 .header-title, .navbar, .header-hud, .header-quick-buttons {
   color: #efefef;
-}
-
-.header-menu > h4 {
-  -webkit-transform: translateY(-50%);
-  -ms-transform: translateY(-50%);
-  transform: translateY(-50%);
+  box-sizing: initial;
 }
 
 .header-quick-buttons > div {
@@ -54,8 +49,9 @@ overflow-x: hidden;
 
 .main-content {
 padding: 1% 1%;
-border: solid 1px black;
-margin: 1% 5%
+border: solid 2px black;
+margin: 1% 5%;
+border-radius: 5px;
 }
 
 .settings-button {
@@ -95,7 +91,6 @@ margin: 1% 5%
   -ms-transform: translateY(-50%);
   transform: translateY(-50%);
   width: 100%;
-  text-align: center;
   padding-right: 10%;
 }
 
@@ -180,8 +175,9 @@ margin: 1% 5%
 
 .frequent-colour-container > div {
   min-height: 50px;
-  margin: 25px;
+  margin: 1%;
   border: solid 1px black;
+  border-radius: 5px;
 }
 
 .randomise {
