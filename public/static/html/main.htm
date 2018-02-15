@@ -6,19 +6,19 @@
 <body>
 <div class="row main-content"  id="resizable">
   <div class="col">
-    <div class="row"><h3>Phillips Hue Lights</h3><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings" ></span></div>
+    <div class="row"><h3 style="position: relative;">Phillips Hue Lights</h3><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings"></span></div>
     <div class="row">
       <div class="col">
     <div class="row">
       <div class="col">
         <div class="row device-box">
-          <div  class="col device" ng-click="updateSliderUI(deviceName, $index)" ng-dblclick="dblclickOnOff($index)" ng-repeat="deviceName in devices" style="background:{{deviceName.state.rgb}}; color: rgb({{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[0]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[1]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[2]}})">
+          <div  class="col device" data="{{$index}}" ng-click="updateSliderUI(deviceName, $index)" ng-dblclick="dblclickOnOff($index)" ng-repeat="deviceName in devices" style="background:{{deviceName.state.rgb}}; color: rgb({{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[0]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[1]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[2]}})">
             <div>
               <img src="./static/images/lightbulbOFF.ico" style="max-height: 20px; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); -moz-user-select: none;" ng-show="!=deviceName.state.on">
               <img src="./static/images/lightbulbON.ico" style="max-height: 20px; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); -moz-user-select: none;" ng-show="deviceName.state.on">
               <p class="device-name">{{deviceName.name}}</p>
             </div>
-            <div class="device-brightness" style="position: absolute; top: 0; right: 0;height: 100%; width: 10%;background: rgb({{deviceName.state.brightness/100*255}},{{deviceName.state.brightness/100*255}},{{deviceName.state.brightness/100*255}});"></div></div></div>
+            <div class="device-brightness" style="position: absolute; top: 25%; right: 5%;height: 50%; width: 20px;background: rgb({{deviceName.state.brightness/100*255}},{{deviceName.state.brightness/100*255}},{{deviceName.state.brightness/100*255}});"></div></div></div>
       </div>
     </div>
     <div class="row slider-container">

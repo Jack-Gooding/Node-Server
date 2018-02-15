@@ -190,6 +190,12 @@ $(document).keyup(function(){
 
 var AngularApp = angular.module('Angular', ["ngRoute"]);
 var extScope;
+$('.device p').click(function(){
+    $(this)
+        .css('font-color','red')
+        .siblings()
+        .css('font-color','blue');
+});
 AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
   //Camera
   $scope.motionDetect = false;
@@ -244,6 +250,7 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
         rgbDevice = $scope.devices;
         socket.emit("rgbLed", rgbDevice);
       };
+
       $scope.dblclickOnOff = function(index) {  // If a device is double clicked, toggle 'ON' status of lights.
         if ($scope.devices[index].state.on) {
           $scope.devices[index].state.on = false;
@@ -303,10 +310,10 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
             }
         	},
         	mouseleave: function() {
-        		$(this).css("color","red");
+        		$(this).css("color","blue");
         	},
         	mouseenter: function() {
-        		$(this).css("color","blue");
+        		$(this).css("color","red");
         	},
         });
       };
@@ -575,24 +582,33 @@ AngularApp.config(function($routeProvider) { //Angular routing provides these HT
 window.addEventListener("load", function(){ //when page loads
 
 });
-
+// On click/hover effects of device buttons
 $(document).ready(function() {
 
 $(".device").on({
     mouseenter: function() {
-        $(this).css("transform","translateY(-1px)");
+        $(this).css("");
     },
     mouseleave: function() {
-        $(this).css("transform","translateY(0px)");
+        $(this).css("");
     },
     mousedown: function() {
-        $(this).css("border-color","blue");
-        let newDevice = $(this).attr("value");
-        rgb.device = newDevice;
-    },
-    mouseup: function() {
-        $(this).css("border-color","white");
-    },
+      $(this).css("opacity","1").css("transition", "all 0.5s");
+      $(this).siblings().css("opacity","0.5").css("transition", "all 0.5s");
+      let newDevice = $(this).attr("value");
+      rgb.device = newDevice;
+        },
+});
+
+// dan test jquery
+$( ".device" ).on("dblclick", function(){
+  if ( !$(this).hasClass('grey') ) {
+    $(this).addClass('grey');
+    $(this).css("background","grey");
+} else {
+    $(this).removeClass('grey');
+    $(this).css("background",extScope.devices[$(this).attr("data")].state.rgb);
+}
 });
 
 //Attach id="resizable" to an element to have it be vertially resizable.

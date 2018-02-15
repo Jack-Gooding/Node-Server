@@ -28,26 +28,19 @@
 <body>
   <div class="container-fluid" ng-app="Angular" >
   <div ng-controller="AngularApp  as $ctrl">
-    <div class="row header-bar">
-    <div class="col-sm-2">
+    <div class="navbar">
       <div class="header-menu" >
-        <h4 onclick="openNav()"><span class="fa fa-active fa-navicon"></span>&nbsp;Menu</h4>
+        <h4 onclick="openNav()"><span class="fa fa-active fa-navicon"></span>&nbsp;Home</h4>
       </div>
-    </div>
-    <div class="col" style="text-align: center;">
-      <h2 class="header-title">Homepage</h2>
-    </div>
-    <div class="col-sm-3">
+  <div>
       <div class="header-quick-buttons">
-        <div>
           <span class="fa fa-active fa-level-up blind-control-button header-quick-buttons-icon" ondblclick="blindControl('up')"></span>
           <span class="fa fa-active fa-camera header-quick-buttons-icon" onclick="takePhoto()"></span>
           <span class="fa fa-active fa-eye header-quick-buttons-icon" style="color: red;" ng-dblclick="motionDetectOn()" ng-show="motionDetect"></span>
           <span class="fa fa-active fa-eye-slash header-quick-buttons-icon" ng-dblclick="motionDetectOn()" ng-show="!motionDetect"></span>
-        </div>
       </div>
-    </div>
-    <div class="col-sm-3">
+  </div>
+    <div>
       <div class="header-hud">
         <p>
           <span id="PiTemp" class="fa fa-thermometer-3">&nbsp;Pi Temp: {{piTemp}}'C </span><br>
@@ -55,7 +48,9 @@
         </p>
       </div>
     </div>
-    </div>
+  </div>
+
+
 
     <ng-view></ng-view>
 
