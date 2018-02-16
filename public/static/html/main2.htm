@@ -4,6 +4,188 @@
   <title>main</title>
 </head>
 <body>
-<div>Test</div>
+<div class="row main-content"  id="resizable">
+  <div class="col">
+    <div class="row"><h3 style="position: relative;">Phillips Hue Lights</h3><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings"></span></div>
+    <div class="row">
+      <div class="col">
+    <div class="row">
+      <div class="col">
+        <div class="row device-box">
+          <div  class="col device" data="{{$index}}" ng-click="updateSliderUI(deviceName, $index)" ng-dblclick="dblclickOnOff($index)" ng-repeat="deviceName in devices" style="background:{{deviceName.state.rgb}}; color: rgb({{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[0]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[1]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[2]}})">
+            <div>
+              <img src="./static/images/lightbulbOFF.ico" style="max-height: 20px; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); -moz-user-select: none;" ng-show="!=deviceName.state.on">
+              <img src="./static/images/lightbulbON.ico" style="max-height: 20px; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); -moz-user-select: none;" ng-show="deviceName.state.on">
+              <p class="device-name">{{deviceName.name}}</p>
+            </div>
+            <div class="device-brightness" style="position: absolute; top: 25%; right: 5%;height: 50%; width: 20px;background: rgb({{deviceName.state.brightness/100*255}},{{deviceName.state.brightness/100*255}},{{deviceName.state.brightness/100*255}});"></div></div></div>
+      </div>
+    </div>
+    <div class="row slider-container">
+      <input type="range" min="0" max="255" ng-model="red" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider hueColourSlider" id="redSlider">
+      <input type="range" min="0" max="255" ng-model="green" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider hueColourSlider" id="greenSlider">
+      <input type="range" min="0" max="255" ng-model="blue" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider hueColourSlider" id="blueSlider">
+      <input type="range" min="0" max="100" ng-model="brightness" ng-change="brightnessUpdate()" ng-disabled="brightnessSliderDisabled" class="slider hueBrightnessSlider" id="brightnessSlider">
+    </div>
+    <div class="row hue-advanced" ng-show="hueAdvanced">
+      <div class="col">
+        <div class="row">
+          <h4>Advanced</h4>
+        </div>
+        <div class="row">
+          <p>Colourloop: <input type="radio"/></p>
+          <p>Blink: <input type="radio"/></p>
+          <p>limit between: <input type="radio"/></p>
+        </div>
+      </div>
+    </div>
+    <div class="row" ng-show="hueMostUsed">
+      <div class="col">
+        <div class="row frequent-colour-container">
+          <div class="col save-colour-block save-colour-active"><div><p class="save-colour-icon" ng-click="colourSave()">+</p></div></div>
+          <div class="col save-colour-block save-colour-inactive"></div>
+          <div class="col save-colour-block save-colour-inactive"></div>
+          <div class="col save-colour-block save-colour-inactive"></div>
+          <div class="col save-colour-block save-colour-inactive"></div>
+          <div class="col save-colour-block save-colour-inactive"></div>
+          <div class="col save-colour-block randomise" ng-click="randomiseColours()"><p>Randomise<br>Colours</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-2" style="min-height: 50px;" ng-show="showSwatch">
+    <div class="colour-swatch row" style="background: rgb({{red}},{{green}},{{blue}});"><p ng-show="checkbox" style="text-align: centre; bottom: 0;">RGB({{red}},{{green}},{{blue}})</p></div>
+    <div class="brightness-swatch row" style="background: rgb({{brightness/100*255}},{{brightness/100*255}},{{brightness/100*255}});"><p ng-show="colourInfo" class="swatch-colour-info">{{brightness}}/100</p></div>
+    <div class="hue-submit row" ng-click="sendHueData()"><button style="width: 100%;">Submit</button></div>
+  </div>
+</div>
+</div>
+<div class="modal fade" id="hue-settings">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Phillips Hue Settings</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <p>Show Swatch: <input type="checkbox" ng-model="showSwatch"></p>
+        <p>Most Used: <input type="checkbox" ng-model="hueMostUsed"></p>
+        <p>Color Values: <input type="checkbox" ng-model="colourInfo"></p>
+        <p>Advanced Options: <input type="checkbox" ng-model="hueAdvanced"></p>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+</div>
+<div class="row main-content">
+  <div class="col">
+    <div class="row"><h3>RGB Strips</h3><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings" ></span></div>
+    <div class="row" style="padding: 10px 0;">
+      <div class="col pixelBox pixelBox-active" data="{{$index}}" ng-repeat="x in ledArray" ng-click="updatePixelSliderUI($index)"><div style="background: rgb({{x.state.red}},{{x.state.green}},{{x.state.blue}});"></div></div>
+    </div>
+    <div class="row">
+      <div class="col-sm-3">
+        <div class="row">
+          <input id="fullSliderSelect" class="pixelSelectionButton" style="position: fixed; visibility: hidden;" type="radio" name="pixelSelection" ng-model="pixelSelection" value="string"/>
+          <label for="fullSliderSelect" class="col pixelSelectionButton " ng-click="updatePixelSliderUI('string')" >String</label>
+
+          <input id="rangeSelect" class="pixelSelectionButton" style="position: fixed; visibility: hidden;" type="radio" name="pixelSelection" ng-model="pixelSelection" value="range"/>
+          <label for="rangeSelect"  class="col pixelSelectionButton"  ng-click="updatePixelSliderUI('range')">Range</label>
+
+          <input id="singleSelect" class="pixelSelectionButton" style="position: fixed; visibility: hidden;" type="radio" name="pixelSelection" ng-model="pixelSelection" value="single"/>
+          <label for="singleSelect"  class="col pixelSelectionButton " ng-click="updatePixelSliderUI('input')">Single Pixel</label>
+        </div>
+        <div ng-switch="pixelSelection">
+          <div ng-switch-when="single">
+            <div class="row">
+              <div class="col" style="padding: 2px;"><input style="width: 100%;" id="singlePixelInput" ng-model="pixelSingleSelection" type="text" /></div><div class="col-sm-3" style="margin: 0; padding: 0;"><input type="button" style="text-align:center; width: 100%; height:100%;" ng-click="updatePixelSliderUI('input')" value="Ok" /></div>
+            </div>
+          </div>
+          <div ng-switch-when="range">
+            <div class="row">
+              <div class="col" style="padding: 2px;"><input style="width: 100%;" id="rangePixelInput" ng-model="pixelRangeSelection" type="text" /></div><div class="col-sm-3" style="margin: 0; padding: 0;"><input type="button" style="text-align:center; width: 100%; height:100%;" ng-click="updatePixelSliderUI('range')" value="Ok" /></div>
+            </div>
+          </div>
+          <div ng-switch-when="string">
+            <div class="row">
+            <div class="col" style="padding: 2px;"><input style="width: 100%;" id="stringPixelInput" ng-model="pixelStringSelection" type="text" disabled="true"/></div><div class="col-sm-3" style="margin: 0; padding: 0;"><input type="button" style="text-align:center; width: 100%; height:100%;" value="Ok" disabled="true" /></div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col" style="border: solid 1px black; margin: 2px;">Rgb&nbsp;<input type="radio" name="rgbInputSelection" ng-model="rgbInputSelection" value="rgb"></div>
+          <div class="col" style="border: solid 1px black; margin: 2px;">Hex&nbsp;<input type="radio" name="rgbInputSelection" ng-model="rgbInputSelection" value="hex"></div>
+          <div class="col" style="border: solid 1px black; margin: 2px;">Function&nbsp;<input type="radio" name="rgbInputSelection" ng-model="rgbInputSelection" value="function"></div>
+        </div>
+        <div ng-switch="rgbInputSelection">
+          <div ng-switch-when="rgb">
+            <div class="row">
+              <label>Red:&nbsp;<input type="text" ng-model="pixelRed" value=""/></label><br>
+              <label>Green:&nbsp;<input type="text" ng-model="pixelGreen" value=""/></label><br>
+              <label>Blue:&nbsp;<input type="text" ng-model="pixelBlue" value=""/></label><br>
+            </div>
+          </div>
+          <div ng-switch-when="hex">
+            <div class="row">
+              <label>Hex: &nbsp;</label><input type="text" value="#"/>
+            </div>
+          </div>
+          <div ng-switch-when="function">
+            <div class="row">
+              <label >function: &nbsp;</label><textarea value="#"/>
+            </div>
+        </div>
+        <div class="row">
+          <div class="col">
+              <select id="neoPixelEffect">
+                <option value="Blink (off)" >Blink (off)</option>
+                <option value="Blink (random,all,full)" >Blink (random,all)</option>
+                <option value="Blink (random,all,small)" >Blink (random,all)</option>
+                <option value="Blink (random,each,full)" >Blink (random,each)</option>
+                <option value="Blink (random,each,small)" >Blink (random,each)</option>
+
+              </select>
+              <button type="submit" ng-click="neoPixelEffect()"> Let's do it </button>
+              <button value="clear" ng-click="clearNeoPixelEffect()">clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+      <div class="col">
+        <input type="range" min="0" max="255" ng-model="pixelRed" ng-change="updateLedArray()" class="slider">
+        <input type="range" min="0" max="255" ng-model="pixelGreen" ng-change="updateLedArray()" class="slider">
+        <input type="range" min="0" max="255" ng-model="pixelBlue" ng-change="updateLedArray()" class="slider">
+      </div>
+      <div class="col-sm-3">
+        <div class="row" style="height: 80%">
+          <div style="width: 100%; height: 100%; background: rgb({{pixelRed}},{{pixelGreen}},{{pixelBlue}});"></div>
+        </div>
+        <div class="row" style="text-align:center;">
+          <button style="text-align:center; width: 100%;" value="submit" ng-click="emitPixelArray()">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row main-content">
+  <h3>Blind Motor (soon) </h3>
+  <div id="testing"></div>
+</div>
+<div class="row main-content">
+  <h3>Desktop Control (soon) </h3>
+</div>
 </body>
 </html>
+<script>
+
+</script>

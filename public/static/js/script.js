@@ -247,7 +247,31 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
       $scope.red = 240;
       $scope.green = 200;
       $scope.blue = 140;
+      $scope.colourSliderDisabled = false;
+      $scope.colourSliderBlur = function(onOff) {
+        if (onOff) {
+          $scope.brightnessSliderBlur(true);
+          $scope.brightnessSliderDisabled = true;
+          $(".hueBrightnessSlider").css("opacity","0.3");
+        } else {
+          $scope.brightnessSliderDisabled = false;
+          $scope.brightnessSliderBlur(false);
+          if ($scope.devices[index].type === "Extended color light") {
+          };
+          $(".hueBrightnessSlider").css("opacity","1");
+        };
+      };
+      $scope.brightnessSliderBlur = function(onOff) {
+        if (onOff) {
+          $scope.colourSliderDisabled = true
+          $(".hueColourSlider").css("opacity","0.3");
+        } else {
+          $scope.colourSliderDisabled = false;
+          $(".hueColourSlider").css("opacity","1");
+        };
+      };
       $scope.brightness = 80;
+      $scope.brightnessSliderDisabled = false;
       $scope.device = 3;
       $scope.deviceIndex = 0;
       $scope.updateSliderUI = function(deviceName, index) { //Changes all sliders and Swatches to match the current device, pulled from devices.
@@ -259,15 +283,28 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
         $scope.brightness = deviceName.state.brightness;
         $scope.deviceIndex = index;
         rgbDevice = $scope.devices;
-        socket.emit("rgbLed", rgbDevice);
+        if ($scope.devices[index].state.on) {
+          $scope.colourSliderBlur(false);
+          if ($scope.devices[index].type === "Extended color light") {
+            $scope.brightnessSliderBlur(false);
+          } else {
+            $scope.brightnessSliderBlur(true);
+          }
+        } else {
+          $scope.colourSliderBlur(true);
+        }
       };
-
+      $scope.sendHueData = function() {
+        socket.emit("rgbLed", rgbDevice);
+      }
       $scope.dblclickOnOff = function(index) {  // If a device is double clicked, toggle 'ON' status of lights.
         if ($scope.devices[index].state.on) {
           $scope.devices[index].state.on = false;
+          $scope.colourSliderBlur(true);
           rgbDevice = $scope.devices;
         } else {
           $scope.devices[index].state.on = true;
+          $scope.colourSliderBlur(false);
           rgbDevice = $scope.devices;
         };
         socket.emit("rgbLed", rgbDevice);
@@ -383,10 +420,10 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
             $scope.blinkOn("random,each,small");
             break;
           case "Blink (random,all,full)":
-            $scope.blinkOn("random,all");
+            $scope.blinkOn("random,all,full");
             break;
           case "Blink (random,all,small)":
-            $scope.blinkOn("random,all");
+            $scope.blinkOn("random,all,small");
             break;
         }
       };
@@ -603,7 +640,7 @@ let neoPixelEffect = function(effect) {
 AngularApp.config(function($routeProvider) { //Angular routing provides these HTML docs to "<ng-view></ng-view>" element
   $routeProvider
   .when("/", {
-    templateUrl : "./static/html/main.htm",
+    templateUrl : "./static/html/main2.htm",
     controller : "AngularApp"
   })
   .when("/monitor", {
@@ -631,8 +668,8 @@ $(".device").on({
         $(this).css("");
     },
     mousedown: function() {
-      $(this).css("opacity","1").css("transition", "all 0.5s");
-      $(this).siblings().css("opacity","0.5").css("transition", "all 0.5s");
+      $(this).css({"opacity":"1", "transition": "all 0.5s"});
+      $(this).siblings().css({"opacity":"0.5", "transition": "all 0.5s"});
       let newDevice = $(this).attr("value");
       rgb.device = newDevice;
         },
