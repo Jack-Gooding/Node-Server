@@ -22,10 +22,10 @@
       </div>
     </div>
     <div class="row slider-container">
-      <input type="range" min="0" max="255" ng-model="red" ng-change="colourUpdate()" class="slider" id="redSlider">
-      <input type="range" min="0" max="255" ng-model="green" ng-change="colourUpdate()" class="slider" id="greenSlider">
-      <input type="range" min="0" max="255" ng-model="blue" ng-change="colourUpdate()" class="slider" id="blueSlider">
-      <input type="range" min="0" max="100" ng-model="brightness" ng-change="brightnessUpdate()" class="slider" id="brightnessSlider">
+      <input type="range" min="0" max="255" ng-model="red" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider hueColourSlider" id="redSlider">
+      <input type="range" min="0" max="255" ng-model="green" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider hueColourSlider" id="greenSlider">
+      <input type="range" min="0" max="255" ng-model="blue" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider hueColourSlider" id="blueSlider">
+      <input type="range" min="0" max="100" ng-model="brightness" ng-change="brightnessUpdate()" ng-disabled="brightnessSliderDisabled" class="slider hueBrightnessSlider" id="brightnessSlider">
     </div>
     <div class="row hue-advanced" ng-show="hueAdvanced">
       <div class="col">
@@ -56,6 +56,7 @@
   <div class="col-sm-2" style="min-height: 50px;" ng-show="showSwatch">
     <div class="colour-swatch row" style="background: rgb({{red}},{{green}},{{blue}});"><p ng-show="checkbox" style="text-align: centre; bottom: 0;">RGB({{red}},{{green}},{{blue}})</p></div>
     <div class="brightness-swatch row" style="background: rgb({{brightness/100*255}},{{brightness/100*255}},{{brightness/100*255}});"><p ng-show="colourInfo" class="swatch-colour-info">{{brightness}}/100</p></div>
+    <div class="hue-submit row" ng-click="sendHueData()"><button style="width: 100%;">Submit</button></div>
   </div>
 </div>
 </div>
@@ -90,7 +91,7 @@
   <div class="col">
     <div class="row"><h3>RGB Strips</h3><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings" ></span></div>
     <div class="row" style="padding: 10px 0;">
-      <div class="col pixelBox pixelBox-active" data="{{$index}}" ng-repeat="x in ledArray" ng-click="updatePixelSliderUI($index)"><div style="background: rgb({{x.state.red}},{{x.state.green}},{{x.state.blue}}); height: 50px; width: 100%; cursor: pointer; border-radius: 5px;"></div></div>
+      <div class="col pixelBox pixelBox-active" data="{{$index}}" ng-repeat="x in ledArray" ng-click="updatePixelSliderUI($index)"><div style="background: rgb({{x.state.red}},{{x.state.green}},{{x.state.blue}});"></div></div>
     </div>
     <div class="row">
       <div class="col-sm-3">

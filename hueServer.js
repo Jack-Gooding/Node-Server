@@ -106,7 +106,6 @@ api.lights(function(err, devices, getRGB) {
   console.log(lightStatus);
 
 });
-api.getHueRGB(4).then(displayResult);
 api.lights();
 
 

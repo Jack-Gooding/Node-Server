@@ -256,10 +256,8 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
         } else {
           $scope.brightnessSliderDisabled = false;
           $scope.brightnessSliderBlur(false);
-          if ($scope.devices[index].type === "Extended color light") {
-          };
           $(".hueBrightnessSlider").css("opacity","1");
-        };
+        }
       };
       $scope.brightnessSliderBlur = function(onOff) {
         if (onOff) {
@@ -284,14 +282,14 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
         $scope.deviceIndex = index;
         rgbDevice = $scope.devices;
         if ($scope.devices[index].state.on) {
-          $scope.colourSliderBlur(false);
+          //$scope.colourSliderBlur(false);
           if ($scope.devices[index].type === "Extended color light") {
-            $scope.brightnessSliderBlur(false);
+            //$scope.brightnessSliderBlur(false);
           } else {
-            $scope.brightnessSliderBlur(true);
-          }
+            //$scope.brightnessSliderBlur(true);
+          };
         } else {
-          $scope.colourSliderBlur(true);
+          //$scope.colourSliderBlur(true);
         }
       };
       $scope.sendHueData = function() {
@@ -300,12 +298,12 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
       $scope.dblclickOnOff = function(index) {  // If a device is double clicked, toggle 'ON' status of lights.
         if ($scope.devices[index].state.on) {
           $scope.devices[index].state.on = false;
-          $scope.colourSliderBlur(true);
           rgbDevice = $scope.devices;
+          $scope.colourSliderBlur(true);
         } else {
           $scope.devices[index].state.on = true;
-          $scope.colourSliderBlur(false);
           rgbDevice = $scope.devices;
+          $scope.colourSliderBlur(false);
         };
         socket.emit("rgbLed", rgbDevice);
       };
@@ -640,7 +638,7 @@ let neoPixelEffect = function(effect) {
 AngularApp.config(function($routeProvider) { //Angular routing provides these HTML docs to "<ng-view></ng-view>" element
   $routeProvider
   .when("/", {
-    templateUrl : "./static/html/main2.htm",
+    templateUrl : "./static/html/main.htm",
     controller : "AngularApp"
   })
   .when("/monitor", {
@@ -677,12 +675,10 @@ $(".device").on({
 
 // dan test jquery
 $( ".device" ).on("dblclick", function(){
-  if ( !$(this).hasClass('grey') ) {
-    $(this).addClass('grey');
-    $(this).css("background","grey");
+  if (!$(this).hasClass('grey')) {
+    $(this).addClass('grey').css("background","grey");
 } else {
-    $(this).removeClass('grey');
-    $(this).css("background",extScope.devices[$(this).attr("data")].state.rgb);
+    $(this).removeClass('grey').css("background",extScope.devices[$(this).attr("data")].state.rgb);
 }
 });
 
