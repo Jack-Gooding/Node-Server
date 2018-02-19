@@ -55,21 +55,49 @@ background: white;
   right: 10px;
   transform: scale(2);
 }
+
 .device {
   text-align: center;
-  margin: 5px 20px;
+  margin: 5px 1%;
   height: 40px;
+  min-width: 25%;
   cursor: pointer;
   box-shadow: 2px 2px 1px grey;
   border-radius: 25px;
+  -moz-user-select: none;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.device-name {
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 10%;
+  //background: green;
+}
+
+.device-active {
+  box-shadow: 1px 1px 0 grey;
+  top: 1px;
 }
 
 .device-brightness {
   border-radius: 100%;
+  position: absolute;
+  top: 25%;
+  right: 5%;
+  height: 50%;
+  width: 20px;
 }
 
-.device img {
-  max-height: 20px; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); -moz-user-select: none;
+.deviceStateOnOff {
+  max-height: 20px;
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  -moz-user-select: none;
 }
 
 .device p {
@@ -115,6 +143,7 @@ background: white;
 .slider {
   margin: 10px 0;
 }
+
 #redSlider::-webkit-slider-runnable-track {
   background: pink;
 }
@@ -142,7 +171,6 @@ background: white;
     font-size: 25px;
     color: #818181;
     display: block;
-    transition-delay: 0.3s;
     transition-delay: 0.2s;
     overflow: hidden;
     white-space: nowrap;
@@ -178,23 +206,22 @@ background: white;
 .pixelBox {
   cursor: pointer;
   min-height: 50px;
-  border: solid 1px grey;
   border-radius: 10%;
-  padding: 1px;
-  margin: 1px;
+  //border: solid 3px grey;
+  margin: 2px;
+  padding: 0;
   width: 100%;
 }
 
 .pixelBox > div {
   width: 100%;
   height: 50px;
-  width: 100%;
   cursor: pointer;
   border-radius: 5%;
 }
 
 .pixelBox-active {
-  border: solid 3px black;
+  border: solid 2px black;
   margin: 0;
   padding: 0;
 }
@@ -281,6 +308,7 @@ background: white;
   margin: 2px;
   text-align: center;
   background: rgb(180,180,240);
+  -moz-user-select: none;
 }
 
 .pixelSelectionButton:checked + label {

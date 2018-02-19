@@ -89,30 +89,19 @@ var ctrlIsPressed = false;
 var shiftIsPressed = false;
 var altIsPressed = false;
 
-$(document).keydown(function(event){
-    if (event.which=="17") {
-        ctrlIsPressed = true;
-      };
-    if (event.which=="16") {
-        shiftIsPressed = true;
-    };
+$(document).on({
 
-    if (event.which=="18") {
-        altIsPressed = true;
-    };
-});
+    keydown: function(event){ // Watches for keydowns, changes behaviour accordingly
+      if (event.which=="16") { shiftIsPressed = true;};
+      if (event.which=="17") { ctrlIsPressed = true; };
+      if (event.which=="18") { altIsPressed = true;  };
+    },
 
-$(document).keyup(function(event){
-    if (event.which=="17") {
-        ctrlIsPressed = false;
-      };
-    if (event.which=="16") {
-        shiftIsPressed = false;
-    };
-
-    if (event.which=="18") {
-        altIsPressed = false;
-    };
+    keyup:  function(event){ // Watches for keyups, changes behaviour accordingly
+      if (event.which=="16") { shiftIsPressed = false;};
+      if (event.which=="17") { ctrlIsPressed = false; };
+      if (event.which=="18") { altIsPressed = false;  };
+    },
 });
 
 $(window).blur(function(){
@@ -123,13 +112,11 @@ $(window).blur(function(){
 
 var AngularApp = angular.module('Angular', ["ngRoute"]);
 var extScope;
-$('.device p').click(function(){
-    $(this)
-        .css('font-color','red')
-        .siblings()
-        .css('font-color','blue');
-});
+
 AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
+
+  $scope.debug = true;
+
   //Camera
   $scope.motionDetect = false;
   $scope.motionDetectOn = function() {
@@ -144,7 +131,7 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
   $scope.brightness = 80;
   $scope.brightnessSliderDisabled = false;
   $scope.device = 3;
-  $scope.devices = [{
+  $scope.devices = ( !$scope.debug ) ? [{
     "name":"loading...",
     "type":"Extended color light",
     "id":0,
@@ -152,9 +139,8 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
       "on":true,
       "brightness":255,
       "rgb":"rgb(255,255,255)",
-    }
-   }
-        /*
+    },
+  },] : [
         {"name":"Bathroom Light",
         "type":"Dimmable light",
         "id": "1",
@@ -181,8 +167,7 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
           "brightness":80,
           "rgb":"rgb(200,240,140)",
         },
-      },*/
-                      ];
+      },]
       $scope.initialiseHueState = function() { // called on page load, gets values from Server, re-creates $scope.devices with these values.
         $scope.devices = []; //clears $scope.devices
         for (let i = 0; i < newData.length; i++) { // creates the framework
@@ -212,21 +197,24 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
       $scope.blue = $scope.devices[0].state.rgb.split('(')[1].split(')')[0].split(',')[2];
       $scope.brightness = $scope.devices[0].state.brightness;
       $("body").append($scope.devices);
+      if ($scope.devices[0].type !== "Extended color light") {$scope.brightnessSliderBlur(true)};
       $compile($(".hueBrightnessSlider").attr("value",$scope.devices[0].state.brightness))($scope);
       };
 
-      $scope.colourSliderBlur = function(onOff) {
+      $scope.brightnessSliderBlur = function(onOff) {
         if (onOff) {
-          $scope.brightnessSliderBlur(true);
+          $scope.colourSliderBlur(true);
           $scope.brightnessSliderDisabled = true;
           $(".hueBrightnessSlider").css("opacity","0.3");
         } else {
           $scope.brightnessSliderDisabled = false;
-          $scope.brightnessSliderBlur(false);
+          if ($scope.devices[$scope.deviceIndex].type === "Extended color light") {
+            $scope.colourSliderBlur(false);
+          };
           $(".hueBrightnessSlider").css("opacity","1");
         }
       };
-      $scope.brightnessSliderBlur = function(onOff) {
+      $scope.colourSliderBlur = function(onOff) {
         if (onOff) {
           $scope.colourSliderDisabled = true
           $(".hueColourSlider").css("opacity","0.3");
@@ -245,15 +233,17 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
         $scope.brightness = deviceName.state.brightness;
         $scope.deviceIndex = index;
         if ($scope.devices[index].state.on) {
-          //$scope.colourSliderBlur(false);
+          $scope.brightnessSliderBlur(false);
           if ($scope.devices[index].type === "Extended color light") {
-            //$scope.brightnessSliderBlur(false);
+            $scope.colourSliderBlur(false);
           } else {
-            //$scope.brightnessSliderBlur(true);
-          };
+            $scope.colourSliderBlur(true);
+          }
         } else {
-          //$scope.colourSliderBlur(true);
+          $scope.brightnessSliderBlur(true);
         }
+        $(".device").removeClass("device-active"); // Makes it look like a physical button
+        $(".device[data="+index+"]").addClass("device-active");
       };
       $scope.sendHueData = function() {
         rgbDevice = $scope.devices;
@@ -263,11 +253,11 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
         if ($scope.devices[index].state.on) {
           $scope.devices[index].state.on = false;
           rgbDevice = $scope.devices;
-          $scope.colourSliderBlur(true);
+          $scope.brightnessSliderBlur(true);
         } else {
           $scope.devices[index].state.on = true;
           rgbDevice = $scope.devices;
-          $scope.colourSliderBlur(false);
+          $scope.brightnessSliderBlur(false);
         };
         socket.emit("rgbLed", rgbDevice);
       };
@@ -286,13 +276,21 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
         $scope.devices[$scope.deviceIndex].state.brightness = $scope.brightness;
       };
       $scope.savedColourUpdate = function(red, green, blue) { // handles onClick even for saved colours
-        $scope.red = red;
-        $scope.green = green;
-        $scope.blue = blue;
-        if (ctrlIsPressed) {
-          $scope.colourUpdate([0,1,2]);
-        } else {
-          $scope.colourUpdate();
+        if ($scope.devices[$scope.deviceIndex].type === "Extended color light") {
+          $scope.red = red;
+          $scope.green = green;
+          $scope.blue = blue;
+          if (ctrlIsPressed) { // If CTRL is pressed, update all relevant colour
+            let targets = [];
+            for (let i = 0; i < $scope.devices.length; i++) {
+              if ($scope.devices[i].type === "Extended color light") {
+                targets.push(i);
+              }
+            }
+            $scope.colourUpdate(targets);
+          } else {
+            $scope.colourUpdate();
+          }
         }
       };
       $scope.colourSave = function() {
@@ -302,7 +300,7 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
           .removeClass("save-colour-active").attr("ng-click","savedColourUpdate("+$scope.red+","+$scope.green+","+$scope.blue+")"))($scope);
 
         $compile($(".save-colour-inactive:first")
-        .html('<div><p class="save-colour-icon" style="font-weight: 900;" ng-click="colourSave()">+</p></div>'))($scope)
+        .html('<div><p class="save-colour-icon" ng-click="colourSave()">+</p></div>'))($scope)
         .addClass("save-colour-active").removeClass("save-colour-inactive");
 
         $(".save-colour-block").on({
@@ -316,7 +314,7 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
         		$(this).css("color","red").parent().remove();
             if ($(".save-colour-block").hasClass("save-colour-active")) {
             } else {
-              $compile($(".save-colour-active").after('<div class="col save-colour-block save-colour-active"><div><p class="save-colour-icon" style="font-weight: 900;" ng-click="colourSave()">+</p></div></div>'))($scope);
+              $compile($(".save-colour-active").after('<div class="col save-colour-block save-colour-active"><div><p class="save-colour-icon" ng-click="colourSave()">+</p></div></div>'))($scope);
             }
         	},
         	mouseleave: function() {
@@ -328,10 +326,22 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
         });
       };
       $scope.randomiseColours = function() { //onclick function to Ranomise Colours button
-        $scope.red = Math.floor(Math.random()*255);
-        $scope.green = Math.floor(Math.random()*255);
-        $scope.blue = Math.floor(Math.random()*255);
-        $scope.colourUpdate();
+        if ($scope.devices[$scope.deviceIndex].type === "Extended color light") {
+          $scope.red = Math.floor(Math.random()*255);
+          $scope.green = Math.floor(Math.random()*255);
+          $scope.blue = Math.floor(Math.random()*255);
+        };
+        if (ctrlIsPressed) { // If CTRL is pressed, update all relevant colour
+          let targets = [];
+          for (let i = 0; i < $scope.devices.length; i++) {
+            if ($scope.devices[i].type === "Extended color light") {
+              targets.push(i);
+            }
+          }
+          $scope.colourUpdate(targets);
+        } else {
+          $scope.colourUpdate();
+        }
       };
 
       $scope.initialiseState = function(data) {
@@ -501,9 +511,9 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
             $scope.ledArray[$scope.pixelIndex[i]].state.blueTemp = $scope.ledArray[$scope.pixelIndex[i]].state.blue;
           }
         };
-      $scope.updatePixelSliderUI = function(index) { //Changes which Pixel is selected,and updates the Sliders to match
+      $scope.updatePixelSliderUI = function(index) { //Changes which Pixel(s) are selected,and updates the Sliders to match
 
-        if (!(ctrlIsPressed || shiftIsPressed || altIsPressed)) {
+        if (!(ctrlIsPressed || shiftIsPressed || altIsPressed)) { //clears the current selection if no keys are held down
           $scope.pixelIndex = $scope.pixelIndex.slice(0,0);
           $(".pixelBox").removeClass("pixelBox-active");
         };
@@ -540,10 +550,9 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
               $(".pixelBox[data='" + i +"']").addClass("pixelBox-active");
 
             }
-        } else {
+        } else { //Assuming now that a pixel has been clicked
           $scope.lastPixelIndex = $scope.pixelIndex.slice(-1)[0];
-          if (ctrlIsPressed && shiftIsPressed) {
-            //$scope.pixelIndexStore = $scope.pixelIndex.slice(0,1);
+          if (ctrlIsPressed && shiftIsPressed) { //handles adding range to selection
             let shiftStringLength =  Math.abs(index - $scope.lastPixelIndex);
             let tempStore = [];
             startPoint = (index > $scope.lastPixelIndex) ? $scope.lastPixelIndex : index;
@@ -552,14 +561,13 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
               tempStore.push(arrayValToPush);
               $(".pixelBox[data='" +arrayValToPush+"']").addClass("pixelBox-active");
             };
-            $scope.pixelIndex = $scope.pixelIndex.concat(tempStore);
+            $scope.pixelIndex = $scope.pixelIndex.concat(tempStore);  
           }
-          else if (ctrlIsPressed) {
+          else if (ctrlIsPressed) { //handles adding pixel to selection
             $scope.pixelIndex.push(index);
             $(".pixelBox[data='" + index +"']").addClass("pixelBox-active");
           }
-          else if (shiftIsPressed) {
-            //$scope.pixelIndexStore = $scope.pixelIndex.slice(0,1);
+          else if (shiftIsPressed) { //handles changing selection to new range
             $scope.pixelIndex = [$scope.lastPixelIndex];
             $(".pixelBox").removeClass("pixelBox-active");
             let shiftStringLength =  Math.abs(index - $scope.lastPixelIndex);
@@ -572,15 +580,19 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
             };
             $scope.pixelIndex = tempStore;
           }
-          else if (altIsPressed) {
+          else if (altIsPressed) { // handles removing pixel from selection
             var a = $scope.pixelIndex.indexOf(index);
             $scope.pixelIndex.splice(a,1);
             $(".pixelBox[data='" + index +"']").removeClass("pixelBox-active");
           }
-          else {
+          else {  // changes selection to new pixel
             $scope.pixelIndex[0] = index;
             $(".pixelBox[data='" + index +"']").addClass("pixelBox-active");
+            $scope.pixelSelection = 'single';
         }
+        if ($scope.pixelIndex.length > 1) { // Updates selection boxes
+          $scope.pixelSelection = 'range';
+        };
         };
         $scope.pixelRed = $scope.ledArray[$scope.pixelIndex[0]].state.red;
         $scope.pixelGreen = $scope.ledArray[$scope.pixelIndex[0]].state.green;
@@ -602,7 +614,7 @@ let neoPixelEffect = function(effect) {
 AngularApp.config(function($routeProvider) { //Angular routing provides these HTML docs to "<ng-view></ng-view>" element
   $routeProvider
   .when("/", {
-    templateUrl : "./static/html/main.htm",
+    templateUrl : "./static/html/control-center.htm",
     controller : "AngularApp"
   })
   .when("/monitor", {

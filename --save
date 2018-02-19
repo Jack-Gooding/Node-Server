@@ -1,6 +1,0 @@
-
-> epoll@1.0.1 install C:\Users\softw_1mqxro5\Documents\github\node_modules\epoll
-> node-gyp rebuild
-
-
-C:\Users\softw_1mqxro5\Documents\github\node_modules\epoll>if not defined npm_config_node_gyp (node "C:\Users\softw_1mqxro5\AppData\Roaming\npm\node_modules\npm\node_modules\npm-lifecycle\node-gyp-bin\\..\..\node_modules\node-gyp\bin\node-gyp.js" rebuild )  else (node "C:\Users\softw_1mqxro5\AppData\Roaming\npm\node_modules\npm\node_modules\node-gyp\bin\node-gyp.js" rebuild ) 
