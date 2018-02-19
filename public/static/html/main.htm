@@ -6,7 +6,7 @@
 <body>
 <div class="row main-content"  id="resizable">
   <div class="col">
-    <div class="row"><h3 style="position: relative;">Phillips Hue Lights</h3><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings"></span></div>
+    <div class="row"><h3 >Phillips Hue Lights</h3><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings"></span></div>
     <div class="row">
       <div class="col">
     <div class="row">
@@ -53,10 +53,11 @@
       </div>
     </div>
   </div>
-  <div class="col-sm-2" style="min-height: 50px;" ng-show="showSwatch">
-    <div class="colour-swatch row" style="background: rgb({{red}},{{green}},{{blue}});"><p ng-show="checkbox" style="text-align: centre; bottom: 0;">RGB({{red}},{{green}},{{blue}})</p></div>
+  <div class="col-sm-2" ng-show="showSwatch">
+    <div class="colour-swatch row" style="background: rgb({{red}},{{green}},{{blue}});"><p ng-show="checkbox">RGB({{red}},{{green}},{{blue}})</p></div>
     <div class="brightness-swatch row" style="background: rgb({{brightness/100*255}},{{brightness/100*255}},{{brightness/100*255}});"><p ng-show="colourInfo" class="swatch-colour-info">{{brightness}}/100</p></div>
-    <div class="hue-submit row" ng-click="sendHueData()"><button style="width: 100%;">Submit</button></div>
+
+    <div class="hue-submit row" ng-click="sendHueData()"><h3 style="width: 100%; line-height: 100%; text-align: center; Position: relative; top:50%; transform: translateY(-40%); font-weight: bold; ">Update</h3><!--<button style="width: 100%;">Submit</button>--></div>
   </div>
 </div>
 </div>

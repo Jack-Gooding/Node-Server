@@ -1,3 +1,6 @@
+
+let socket = io(); //load socket.io-client and connect to the host that serves the page
+
 //===================//
 //Cookie Control Functions
 //===================//
@@ -44,10 +47,6 @@ function cookieExists(cookie, base) {
 }
 
 
-let socket = io(); //load socket.io-client and connect to the host that serves the page
-
-
-
 
 
 var rgbDevice = [{"state":{"brightness":35},},{"state":{"brightness":35},},{"state":{"brightness":35},},];
@@ -71,83 +70,6 @@ for (let i = 0; i < 25; i++) {
 };
 
 
-
-let cieRGB = "wrong";
-
-/**
- * Converts CIE color space to RGB color space
- * @param {Number} x
- * @param {Number} y
- * @param {Number} brightness - Ranges from 1 to 254
- * @return {Array} Array that contains the color values for red, green and blue
- */
-function cie_to_rgb(x, y, brightness)
-{
-	//Set to maximum brightness if no custom value was given (Not the slick ECMAScript 6 way for compatibility reasons)
-	if (brightness === undefined) {
-		brightness = 254;
-	}
-
-	var z = 1.0 - x - y;
-	var Y = (brightness / 254).toFixed(2);
-	var X = (Y / y) * x;
-	var Z = (Y / y) * z;
-
-	//Convert to RGB using Wide RGB D65 conversion
-	var red 	=  X * 1.656492 - Y * 0.354851 - Z * 0.255038;
-	var green 	= -X * 0.707196 + Y * 1.655397 + Z * 0.036152;
-	var blue 	=  X * 0.051713 - Y * 0.121364 + Z * 1.011530;
-
-	//If red, green or blue is larger than 1.0 set it back to the maximum of 1.0
-	if (red > blue && red > green && red > 1.0) {
-
-		green = green / red;
-		blue = blue / red;
-		red = 1.0;
-	}
-	else if (green > blue && green > red && green > 1.0) {
-
-		red = red / green;
-		blue = blue / green;
-		green = 1.0;
-	}
-	else if (blue > red && blue > green && blue > 1.0) {
-
-		red = red / blue;
-		green = green / blue;
-		blue = 1.0;
-	}
-
-	//Reverse gamma correction
-	red 	= red <= 0.0031308 ? 12.92 * red : (1.0 + 0.055) * Math.pow(red, (1.0 / 2.4)) - 0.055;
-	green 	= green <= 0.0031308 ? 12.92 * green : (1.0 + 0.055) * Math.pow(green, (1.0 / 2.4)) - 0.055;
-	blue 	= blue <= 0.0031308 ? 12.92 * blue : (1.0 + 0.055) * Math.pow(blue, (1.0 / 2.4)) - 0.055;
-
-
-	//Convert normalized decimal to decimal
-	red 	= Math.round(red * 255);
-	green 	= Math.round(green * 255);
-	blue 	= Math.round(blue * 255);
-
-	if (isNaN(red))
-		red = 0;
-
-	if (isNaN(green))
-		green = 0;
-
-	if (isNaN(blue))
-		blue = 0;
-
-
-	return "rgb("+red+","+green+","+blue+")";
-
-}
-
-//document.getElementById("testing").innerHTML = "Paragraph changed!";
-let rgb = cie_to_rgb(0.2, 0.7, 54);
-$(document).ready(function() {
-  $("body").append(rgb);
-});
 
 function openNav() { // Set the width of the side navigation to 250px
     document.getElementById("mySidenav").style.width = "250px";
@@ -215,7 +137,24 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
     $scope.motionDetect = !$scope.motionDetect;
     socket.emit("motionDetectOnOff", $scope.motionDetect);
   };
-      $scope.devices = [
+  $scope.red = 240;
+  $scope.green = 200;
+  $scope.blue = 140;
+  $scope.colourSliderDisabled = false;
+  $scope.brightness = 80;
+  $scope.brightnessSliderDisabled = false;
+  $scope.device = 3;
+  $scope.devices = [{
+    "name":"loading...",
+    "type":"Extended color light",
+    "id":0,
+    "state": {
+      "on":true,
+      "brightness":255,
+      "rgb":"rgb(255,255,255)",
+    }
+   }
+        /*
         {"name":"Bathroom Light",
         "type":"Dimmable light",
         "id": "1",
@@ -242,12 +181,40 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
           "brightness":80,
           "rgb":"rgb(200,240,140)",
         },
-        },
+      },*/
                       ];
-      $scope.red = 240;
-      $scope.green = 200;
-      $scope.blue = 140;
-      $scope.colourSliderDisabled = false;
+      $scope.initialiseHueState = function() { // called on page load, gets values from Server, re-creates $scope.devices with these values.
+        $scope.devices = []; //clears $scope.devices
+        for (let i = 0; i < newData.length; i++) { // creates the framework
+          $scope.devices.push({
+            'name': undefined,
+            'type': undefined,
+            'id':undefined,
+            'state': {
+              'on': undefined,
+              'brightness': undefined,
+              'rgb': undefined,
+            },
+          })
+      };
+      for (let i = 0; i < newData.length; i++) { // Fills the frame from newData
+        $scope.devices[i].name = newData[i].name;
+        $scope.devices[i].type = newData[i].type;
+        $scope.devices[i].id = newData[i].id;
+        $scope.devices[i].state.on = newData[i].state.on;
+        $scope.devices[i].state.brightness = newData[i].state.brightness;
+        $scope.devices[i].state.rgb = newData[i].state.rgb;
+        };
+
+      // updates the view from $scope.devices
+      $scope.red = $scope.devices[0].state.rgb.split('(')[1].split(')')[0].split(',')[0];
+      $scope.green = $scope.devices[0].state.rgb.split('(')[1].split(')')[0].split(',')[1];
+      $scope.blue = $scope.devices[0].state.rgb.split('(')[1].split(')')[0].split(',')[2];
+      $scope.brightness = $scope.devices[0].state.brightness;
+      $("body").append($scope.devices);
+      $compile($(".hueBrightnessSlider").attr("value",$scope.devices[0].state.brightness))($scope);
+      };
+
       $scope.colourSliderBlur = function(onOff) {
         if (onOff) {
           $scope.brightnessSliderBlur(true);
@@ -268,9 +235,6 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
           $(".hueColourSlider").css("opacity","1");
         };
       };
-      $scope.brightness = 80;
-      $scope.brightnessSliderDisabled = false;
-      $scope.device = 3;
       $scope.deviceIndex = 0;
       $scope.updateSliderUI = function(deviceName, index) { //Changes all sliders and Swatches to match the current device, pulled from devices.
         $scope.device = deviceName.id;
@@ -280,7 +244,6 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
         $scope.blue = parseInt(rgb[2], 10);
         $scope.brightness = deviceName.state.brightness;
         $scope.deviceIndex = index;
-        rgbDevice = $scope.devices;
         if ($scope.devices[index].state.on) {
           //$scope.colourSliderBlur(false);
           if ($scope.devices[index].type === "Extended color light") {
@@ -293,6 +256,7 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
         }
       };
       $scope.sendHueData = function() {
+        rgbDevice = $scope.devices;
         socket.emit("rgbLed", rgbDevice);
       }
       $scope.dblclickOnOff = function(index) {  // If a device is double clicked, toggle 'ON' status of lights.
@@ -751,12 +715,12 @@ let blindControl = function(direction) { //onClick for Blinds "fa-level-directio
 };
 
 
-/*
-socket.on('hueLightStatus', function(data) {
-  data = JSON.stringify(data);
-  extScope.devices = JSON.parse(data);
-  $("body").append(JSON.parse(data)[1].state.brightness/100*255);
-  extScope.brightness = JSON.parse(data)[1].state.brightness/100*255;
-  extScope.devices[1].state.brightness = JSON.parse(data)[1].state.brightness/100*255;
+setTimeout(function() {
+socket.emit('getLightStatus');
+},500);
+
+let newData = [];
+socket.on('giveLightStatus', function(data) {
+  newData = data;
+  extScope.initialiseHueState();
 });
-*/
