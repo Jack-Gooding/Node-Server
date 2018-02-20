@@ -55,18 +55,24 @@ var tempDevice = [];
 
 let ledPixelArray = [];
 let ledPixelArrayStore = [];
+let initialPixelColour = {
+  red : Math.round(Math.random()*255),
+  green : Math.round(Math.random()*255),
+  blue : Math.round(Math.random()*255),
+  }
 
 for (let i = 0; i < 25; i++) {
     ledPixelArray.push(
       {
         "index": i,
         "state": {
-          "red": Math.round(Math.random()*255),
-          "green": Math.round(Math.random()*255),
-          "blue": Math.round(Math.random()*255),
+          "red": initialPixelColour.red,
+          "green": initialPixelColour.green,
+          "blue": initialPixelColour.blue,
         },
       },
     )
+    socket.emit('sendPixelArray', ledPixelArray);
 };
 
 
@@ -350,7 +356,7 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
       //Declaring variables for use with Settings & ng-show
       $scope.showSwatch = true;
       $scope.hueAdvanced = false;
-      $scope.colourInfo = false;
+      $scope.colourInfo = true;
       $scope.hueMostUsed = true;
       $scope.piTemp = "--";
       $scope.roomTemp = "--";
@@ -361,9 +367,9 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
       $scope.ledArray = ledPixelArray;
 
       $scope.pixelSelection = "string";
-      $scope.pixelRed=245;
-      $scope.pixelGreen=115;
-      $scope.pixelBlue=175;
+      $scope.pixelRed=$scope.ledArray[0].state.red;
+      $scope.pixelGreen=$scope.ledArray[0].state.green;
+      $scope.pixelBlue=$scope.ledArray[0].state.blue;
 
       $scope.pixelIndex = []; //Translate which Pixel is selected
       for (x in ledPixelArray) {
@@ -603,6 +609,32 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
       $scope.emitPixelArray = function() {
         socket.emit('sendPixelArray', ledPixelArray);
       };
+
+      // TP-Link controller
+      $scope.TPLinkOnColour = "#EECCAA";
+      $scope.TPLinkOffColour = "#bbb";
+      $scope.TPLinkDevices = [{
+            name: "The Magic",
+            ip: "192.168.0.95",
+            on: 0,
+            background: $scope.TPLinkOffColour,
+          },{
+            name: "Desk Fan",
+            ip: "192.168.0.96",
+            on: 1,
+            background: $scope.TPLinkOnColour,
+          },
+        ];
+      $scope.TPLinkDeviceOnOff = function(index) {
+        if ($scope.TPLinkDevices[index].on) {
+          $scope.TPLinkDevices[index].on = 0;
+          $scope.TPLinkDevices[index].background = $scope.TPLinkOffColour;
+        } else {
+          $scope.TPLinkDevices[index].on = 1;
+          $scope.TPLinkDevices[index].background = $scope.TPLinkOnColour;
+        };
+        socket.emit("TPLinkPlugState", true);
+      };
       extScope = $scope; //allows access to the $scope object outside of the Angular Contructor
 });
 
@@ -650,6 +682,8 @@ $(".device").on({
 });
 
 // dan test jquery
+$(document).ready(function() {
+
 $( ".device" ).on("dblclick", function(){
   if (!$(this).hasClass('grey')) {
     $(this).addClass('grey').css("background","grey");
@@ -657,17 +691,12 @@ $( ".device" ).on("dblclick", function(){
     $(this).removeClass('grey').css("background",extScope.devices[$(this).attr("data")].state.rgb);
 }
 });
-
-$(document).ready(function() {
-    $(".TP-link-control").dblclick(function() {
-
-  socket.emit("TPLinkPlugState", true);
-
+$(".fa-chevron-right").click(function(){
+  $(this).animate({'-moz-transform': "rotate(45deg)"},200);
+})
 });
-});
-
 //Attach id="resizable" to an element to have it be vertially resizable.
-$( function() {
+/*$( function() {
   $( "#resizable" ).resizable({
     minHeight: 400,
     handles: 's',
@@ -675,7 +704,7 @@ stop: function(event, ui) {
     $(this).css("width", '');
 }
   });
-});
+});*/
 
 });
 

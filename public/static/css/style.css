@@ -86,16 +86,17 @@ background: white;
 .device-brightness {
   border-radius: 100%;
   position: absolute;
-  top: 25%;
+  top: 50%;
   right: 5%;
-  height: 50%;
+  transform: translateY(-50%);
+  height: 20px;
   width: 20px;
 }
 
 .deviceStateOnOff {
   max-height: 20px;
   position: absolute;
-  left: 10px;
+  left: 5%;
   top: 50%;
   transform: translateY(-50%);
   -moz-user-select: none;
@@ -112,16 +113,57 @@ background: white;
   padding-right: 10%;
 }
 
+.TPLinkDevice {
+  text-align: center;
+  margin: 5px 1%;
+  margin: 3px 0;
+  height: 40px;
+  min-width: 25%;
+  cursor: pointer;
+  box-shadow: 2px 2px 1px grey;
+  border-radius: 25px;
+  -moz-user-select: none;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.TPLinkDevice p {
+  position: absolute;
+  top: 50%;
+  text-align: center;
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  width: 100%;
+  padding-right: 10%;
+}
 
 .slider-container {
   min-height: 10px;
-  padding: 0 1%;
+  padding: 0;
 }
 
 
+.swatch-info {
+  height: 30px;
+  margin: 0;
+  padding: 2px 15px;
+  position: relative;
+  left: 50%;
+  top: 100%;
+  transform: translate(-50%, -30px);
+  background: #bbb;
+  border-radius: 10px 10px 0 0;
+  text-align: center;
+}
+
+.swatch-colour-info {width: 150px;}
+.swatch-brightness-info {width: 80px;}
+
 .colour-swatch {
-  background: green;
-  min-height: 50%;
+  min-height: 25px;
+  height: 40%;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .brightness-swatch {
@@ -134,11 +176,11 @@ background: white;
   margin: 5% 0;
   padding: 1px 0;
   height: 50px;
-  width: 100%;
   overflow: hidden;
   -moz-user-select: none;
   border: solid 1px black;
   border-radius: 25px;
+  text-align: center;
 }
 
 .slider {

@@ -4,63 +4,74 @@
   <title>main</title>
 </head>
 <body>
+
+
 <div class="row main-content"  id="resizable">
   <div class="col">
-    <div class="row"><h3 >Phillips Hue Lights</h3><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings"></span></div>
-    <div class="row">
-      <div class="col">
-    <div class="row">
-      <div class="col">
-        <div class="row device-box">
-          <div  class="col-md col-xs-12 device" data="{{$index}}" ng-click="updateSliderUI(deviceName, $index)" ng-dblclick="dblclickOnOff($index)" ng-repeat="deviceName in devices" style="background:{{deviceName.state.rgb}}; color: rgb({{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[0]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[1]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[2]}})">
+    <div class="row"><h3 >Phillips Hue Lights</h3><span style="position: absolute; left: 350px; top: 20px; transform: translateY(-50%);" data-toggle="collapse" href="#hueCollapse" class="fa fa-active fa-chevron-right"></span><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings"></span></div>
 
-              <img src="./static/images/lightbulbOFF.ico" class="deviceStateOnOff" ng-show="!=deviceName.state.on">
-              <img src="./static/images/lightbulbON.ico" class="deviceStateOnOff" ng-show="deviceName.state.on">
-              <p class="device-name">{{deviceName.name}}</p>
+      <div class="row device-box">
+        <div  class="col-md col-xs-12 " data="{{$index}}" ng-click="updateSliderUI(deviceName, $index)" ng-dblclick="dblclickOnOff($index)" ng-repeat="deviceName in devices" >
+          <div class="device" style="background:{{deviceName.state.rgb}}; color: rgb({{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[0]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[1]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[2]}})">
+            <img src="./static/images/lightbulbOFF.ico" class="deviceStateOnOff" ng-show="!=deviceName.state.on">
+            <img src="./static/images/lightbulbON.ico" class="deviceStateOnOff" ng-show="deviceName.state.on">
 
-            <div class="device-brightness" style="background: rgb({{deviceName.state.brightness/100*255}},{{deviceName.state.brightness/100*255}},{{deviceName.state.brightness/100*255}});"></div></div></div>
-      </div>
-    </div>
-    <div class="row slider-container">
-      <input type="range" min="0" max="255" ng-model="red" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider redSlider hueColourSlider" id="redSlider">
-      <input type="range" min="0" max="255" ng-model="green" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider greenSlider hueColourSlider" id="greenSlider">
-      <input type="range" min="0" max="255" ng-model="blue" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider blueSlider hueColourSlider" id="blueSlider">
-      <input type="range" min="0" max="100" ng-model="brightness" ng-change="brightnessUpdate()" ng-disabled="brightnessSliderDisabled" class="slider brightnessSlider hueBrightnessSlider" id="brightnessSlider">
-    </div>
-    <div class="row hue-advanced" ng-show="hueAdvanced">
-      <div class="col">
-        <div class="row">
-          <h4>Advanced</h4>
+            <p class="device-name">{{deviceName.name}}</p>
+
+          <div class="device-brightness" style="background: rgb({{deviceName.state.brightness/100*255}},{{deviceName.state.brightness/100*255}},{{deviceName.state.brightness/100*255}});"></div>
         </div>
-        <div class="row">
-          <p>Colourloop: <input type="radio"/></p>
-          <p>Blink: <input type="radio"/></p>
-          <p>limit between: <input type="radio"/></p>
         </div>
       </div>
-    </div>
-    <div class="row" ng-show="hueMostUsed">
+
+    <div class="row panel-collapse collapse show" id="hueCollapse">
       <div class="col">
-        <div class="row frequent-colour-container">
-          <div class="col save-colour-block save-colour-active"><div><p class="save-colour-icon" ng-click="colourSave()">+</p></div></div>
-          <div class="col save-colour-block save-colour-inactive"></div>
-          <div class="col save-colour-block save-colour-inactive"></div>
-          <div class="col save-colour-block save-colour-inactive"></div>
-          <div class="col save-colour-block save-colour-inactive"></div>
-          <div class="col save-colour-block save-colour-inactive"></div>
-          <div class="col save-colour-block randomise" ng-click="randomiseColours()"><p>Randomise<br>Colours</p></div>
+        <div class="row">
+      <div class="col" >
+        <div class="row slider-container" style="margin: 1%;">
+          <input type="range" min="0" max="255" ng-model="red" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider redSlider hueColourSlider" id="redSlider">
+          <input type="range" min="0" max="255" ng-model="green" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider greenSlider hueColourSlider" id="greenSlider">
+          <input type="range" min="0" max="255" ng-model="blue" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider blueSlider hueColourSlider" id="blueSlider">
+          <input type="range" min="0" max="100" ng-model="brightness" ng-change="brightnessUpdate()" ng-disabled="brightnessSliderDisabled" class="slider brightnessSlider hueBrightnessSlider" id="brightnessSlider">
         </div>
+        <div class="row hue-advanced" ng-show="hueAdvanced">
+          <div class="col">
+            <div class="row">
+              <h4>Advanced</h4>
+            </div>
+            <div class="row">
+              <p>Colourloop: <input type="radio"/></p>
+              <p>Blink: <input type="radio"/></p>
+              <p>limit between: <input type="radio"/></p>
+            </div>
+          </div>
+        </div>
+        <div class="row" ng-show="hueMostUsed">
+          <div class="col">
+            <div class="row frequent-colour-container">
+              <div class="col save-colour-block save-colour-active"><div><p class="save-colour-icon" ng-click="colourSave()">+</p></div></div>
+              <div class="col save-colour-block save-colour-inactive"></div>
+              <div class="col save-colour-block save-colour-inactive"></div>
+              <div class="col save-colour-block save-colour-inactive"></div>
+              <div class="col save-colour-block save-colour-inactive"></div>
+              <div class="col save-colour-block save-colour-inactive"></div>
+              <div class="col save-colour-block randomise" ng-click="randomiseColours()"><p>Randomise<br>Colours</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-2" ng-show="showSwatch" style="margin: 10px 0;" >
+        <div class="colour-swatch row" style="border-radius: 10px 10px 0 0; background: rgb({{red}},{{green}},{{blue}});"><p class="swatch-info swatch-colour-info" ng-show="colourInfo">rgb({{red}},{{green}},{{blue}})</p></div>
+        <div class="brightness-swatch row" style="border-radius: 0 0 10px 10px; background: rgb({{brightness/100*255}},{{brightness/100*255}},{{brightness/100*255}}); "><p ng-show="colourInfo" class="swatch-info swatch-brightness-info">{{brightness}}/100</p></div>
+        <div class="hue-submit row" ng-click="sendHueData()"><h3 style="line-height: 100%; text-align: center; Position: relative; top:50%; transform: translateY(-40%); font-weight: bold; width: 100%;">Update</h3></div>
       </div>
     </div>
   </div>
-  <div class="col-sm-2" ng-show="showSwatch">
-    <div class="colour-swatch row" style="background: rgb({{red}},{{green}},{{blue}});"><p ng-show="checkbox">RGB({{red}},{{green}},{{blue}})</p></div>
-    <div class="brightness-swatch row" style="background: rgb({{brightness/100*255}},{{brightness/100*255}},{{brightness/100*255}});"><p ng-show="colourInfo" class="swatch-colour-info">{{brightness}}/100</p></div>
+</div>
 
-    <div class="hue-submit row" ng-click="sendHueData()"><h3 style="width: 100%; line-height: 100%; text-align: center; Position: relative; top:50%; transform: translateY(-40%); font-weight: bold; ">Update</h3><!--<button style="width: 100%;">Submit</button>--></div>
   </div>
-</div>
-</div>
+  </div>
+
+
 <div class="modal fade" id="hue-settings">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -87,14 +98,15 @@
     </div>
   </div>
 </div>
-</div>
+
+
 <div class="row main-content">
   <div class="col">
-    <div class="row"><h3>RGB Strips</h3><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings" ></span></div>
+    <div class="row" data-toggle="collapse" href="#pixelCollapse"><h3>RGB Strips</h3><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings" ></span></div>
     <div class="row" style="padding: 10px 0;">
       <div class="col pixelBox pixelBox-active" data="{{$index}}" ng-repeat="x in ledArray" ng-click="updatePixelSliderUI($index)"><div style="background: rgb({{x.state.red}},{{x.state.green}},{{x.state.blue}});"></div></div>
     </div>
-    <div class="row">
+    <div class="row panel-collapse collapse" id="pixelCollapse">
       <div class="col-sm-3">
         <div class="row">
           <input id="fullSliderSelect" class="pixelSelectionButton" style="position: fixed; visibility: hidden;" type="radio" name="pixelSelection" ng-model="pixelSelection" value="string"/>
@@ -179,8 +191,20 @@
   </div>
 </div>
 <div class="row main-content">
+  <div class="col">
+    <div class="row"><h3>TP-Link Smart Plugs </h3></div>
+    <div class="row"><div class="col" ng-repeat="device in TPLinkDevices">
+      <div class="TPLinkDevice" ng-click="TPLinkDeviceOnOff($index)" style="background: {{device.background}}">
+        <p>{{device.name}}</p>
+        <div></div>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+<div class="row main-content">
   <h3>Blind Motor (soon) </h3>
-  <div id="testing"></div>
+  <div></div>
 </div>
 <div class="row main-content">
   <h3>Desktop Control (soon) </h3>
