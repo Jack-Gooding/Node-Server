@@ -59,6 +59,7 @@ background: white;
 .device {
   text-align: center;
   margin: 5px 1%;
+  margin: 3px 0;
   height: 40px;
   min-width: 25%;
   cursor: pointer;

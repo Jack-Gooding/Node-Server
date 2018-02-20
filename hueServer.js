@@ -20,8 +20,22 @@ piFan.writeSync(1); //Fan on when Server Starts
 
 let motionDetectStatus = false;
 var pirSensor = new Gpio(26,'in', 'both');
+let TPLSmartDevice = require('tplink-lightbulb');
 
-
+let plugs;
+// turn first discovered light off
+const scan = TPLSmartDevice.scan()
+  .on('light', light => {
+    let plug = JSON.parse(JSON.stringify(light).split('ip :')[0]);
+    plugs = [{
+        name: plug.name,
+        ip: plug.ip,
+        on: plug._sysinfo.relay_state,
+      },
+    ];
+    console.log(plugs);
+        scan.stop()
+  });
 
 
 var ws281x = require('rpi-ws281x-native');// ws281x addressable RGB strip
@@ -267,6 +281,19 @@ api.setLightState(device, state);
 }
 
 });
+
+socket.on('TPLinkPlugState', function() {
+  console.log(plugs[0].ip);
+  let plugIp = plugs[0].ip;
+  const light = new TPLSmartDevice(plugIp)
+    light.power(!(plugs[0].on))
+  .then(status => {
+    console.log(status)
+  })
+  .catch(err => console.error(err))
+    plugs[0].on = (plugs[0].on) ? 0 : 1;
+});
+
 });
 
 //==================//

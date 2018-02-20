@@ -561,7 +561,7 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
               tempStore.push(arrayValToPush);
               $(".pixelBox[data='" +arrayValToPush+"']").addClass("pixelBox-active");
             };
-            $scope.pixelIndex = $scope.pixelIndex.concat(tempStore);  
+            $scope.pixelIndex = $scope.pixelIndex.concat(tempStore);
           }
           else if (ctrlIsPressed) { //handles adding pixel to selection
             $scope.pixelIndex.push(index);
@@ -656,6 +656,14 @@ $( ".device" ).on("dblclick", function(){
 } else {
     $(this).removeClass('grey').css("background",extScope.devices[$(this).attr("data")].state.rgb);
 }
+});
+
+$(document).ready(function() {
+    $(".TP-link-control").dblclick(function() {
+
+  socket.emit("TPLinkPlugState", true);
+
+});
 });
 
 //Attach id="resizable" to an element to have it be vertially resizable.

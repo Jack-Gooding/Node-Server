@@ -12,7 +12,7 @@
     <div class="row">
       <div class="col">
         <div class="row device-box">
-          <div  class="col-sm col-xs-12 device" data="{{$index}}" ng-click="updateSliderUI(deviceName, $index)" ng-dblclick="dblclickOnOff($index)" ng-repeat="deviceName in devices" style="background:{{deviceName.state.rgb}}; color: rgb({{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[0]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[1]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[2]}})">
+          <div  class="col-md col-xs-12 device" data="{{$index}}" ng-click="updateSliderUI(deviceName, $index)" ng-dblclick="dblclickOnOff($index)" ng-repeat="deviceName in devices" style="background:{{deviceName.state.rgb}}; color: rgb({{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[0]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[1]}},{{255-deviceName.state.rgb.split('(')[1].split(')')[0].split(',')[2]}})">
 
               <img src="./static/images/lightbulbOFF.ico" class="deviceStateOnOff" ng-show="!=deviceName.state.on">
               <img src="./static/images/lightbulbON.ico" class="deviceStateOnOff" ng-show="deviceName.state.on">
@@ -22,10 +22,10 @@
       </div>
     </div>
     <div class="row slider-container">
-      <input type="range" min="0" max="255" ng-model="red" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider hueColourSlider" id="redSlider">
-      <input type="range" min="0" max="255" ng-model="green" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider hueColourSlider" id="greenSlider">
-      <input type="range" min="0" max="255" ng-model="blue" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider hueColourSlider" id="blueSlider">
-      <input type="range" min="0" max="100" ng-model="brightness" ng-change="brightnessUpdate()" ng-disabled="brightnessSliderDisabled" class="slider hueBrightnessSlider" id="brightnessSlider">
+      <input type="range" min="0" max="255" ng-model="red" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider redSlider hueColourSlider" id="redSlider">
+      <input type="range" min="0" max="255" ng-model="green" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider greenSlider hueColourSlider" id="greenSlider">
+      <input type="range" min="0" max="255" ng-model="blue" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider blueSlider hueColourSlider" id="blueSlider">
+      <input type="range" min="0" max="100" ng-model="brightness" ng-change="brightnessUpdate()" ng-disabled="brightnessSliderDisabled" class="slider brightnessSlider hueBrightnessSlider" id="brightnessSlider">
     </div>
     <div class="row hue-advanced" ng-show="hueAdvanced">
       <div class="col">
@@ -163,9 +163,9 @@
       </div>
     </div>
       <div class="col">
-        <input type="range" min="0" max="255" ng-model="pixelRed" ng-change="updateLedArray()" class="slider">
-        <input type="range" min="0" max="255" ng-model="pixelGreen" ng-change="updateLedArray()" class="slider">
-        <input type="range" min="0" max="255" ng-model="pixelBlue" ng-change="updateLedArray()" class="slider">
+        <input type="range" min="0" max="255" ng-model="pixelRed" ng-change="updateLedArray()" class="slider redSlider">
+        <input type="range" min="0" max="255" ng-model="pixelGreen" ng-change="updateLedArray()" class="slider greenSlider">
+        <input type="range" min="0" max="255" ng-model="pixelBlue" ng-change="updateLedArray()" class="slider blueSlider">
       </div>
       <div class="col-sm-3">
         <div class="row" style="height: 80%">
