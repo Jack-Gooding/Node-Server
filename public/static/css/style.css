@@ -1,5 +1,5 @@
 body {
-background-color: #eeeeff;
+background-color: #eeeeee;
 overflow-x: hidden;
 }
 
@@ -42,23 +42,40 @@ overflow-x: hidden;
 }
 
 .main-content {
-padding: 1% 1%;
+padding: 0;
 border: solid 2px black;
 margin: 1% 5%;
 border-radius: 5px;
 background: white;
 }
 
-.settings-button {
+
+.main-content > div {
+  margin: 1%;
+  padding: 15px;
+}
+
+.show-hide-button {
+  background: white;
+  border: solid 2px black;
+  border-radius: 0px 0px 40px 40px;
+  border-top: 0px;
+  width: 70px;
+  height: 30px;
   position: absolute;
-  top:5px;
-  right: 10px;
-  transform: scale(2);
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  z-index: 3;
+  display: none;
+}
+
+.show-hide-button-active {
+  display: inline-block;
 }
 
 .device {
   text-align: center;
-  margin: 5px 1%;
   margin: 3px 0;
   height: 40px;
   min-width: 25%;
@@ -113,6 +130,17 @@ background: white;
   padding-right: 10%;
 }
 
+.settings-hub {
+  position: absolute;
+  top:15px;
+  right: 15px;
+  transform: scale(2);
+  border: solid 1px black;
+  background: #fff;
+  border-radius: 10px;
+  padding: 0 5px;
+}
+
 .TPLinkDevice {
   text-align: center;
   margin: 5px 1%;
@@ -161,76 +189,35 @@ background: white;
 
 .colour-swatch {
   min-height: 25px;
-  height: 40%;
+  height: 60%;
   overflow: hidden;
   white-space: nowrap;
 }
 
 .brightness-swatch {
-  height: 25%;
+  height: 40%;
   background: grey;
 }
 
 .hue-submit {
-  background: green;
-  margin: 5% 0;
-  padding: 1px 0;
+  margin: 0;
+  padding: 0;
   height: 50px;
   overflow: hidden;
   -moz-user-select: none;
   border: solid 1px black;
-  border-radius: 25px;
+  border-radius: 5px;
   text-align: center;
 }
 
-.slider {
-  margin: 10px 0;
-}
-
-#redSlider::-webkit-slider-runnable-track {
-  background: pink;
-}
-
-
-/* The side navigation menu */
-.sidenav {
-    height: 100%; /* 100% Full-height */
-    width: 0; /* 0 width - change this with JavaScript */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Stay on top */
-    top: 0; /* Stay at the top */
-    left: -2px;
-    background-color: beige; /* Black*/
-    overflow-x: hidden; /* Disable horizontal scroll */
-    padding-top: 60px; /* Place content 60px from the top */
-    transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
-    border-right: solid 2px skyblue;
-}
-
-/* The navigation menu links */
-.sidenav a {
-    padding: 8px 8px 8px 32px;
-    text-decoration: none;
-    font-size: 25px;
-    color: #818181;
-    display: block;
-    transition-delay: 0.2s;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-/* When you mouse over the navigation links, change their color */
-.sidenav a:hover {
-    color: #1f1f1f;
-}
-
-/* Position and style the close button (top right corner) */
-.sidenav .closebtn {
-    position: absolute;
-    top: 0;
-    right: 25px;
-    font-size: 36px;
-    margin-left: 50px;
+.hue-submit h3 {
+  line-height: 100%;
+  text-align: center;
+  Position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: 500;
+  width: 100%;
 }
 
 .fa {
@@ -251,7 +238,7 @@ background: white;
   min-height: 50px;
   border-radius: 10%;
   //border: solid 3px grey;
-  margin: 2px;
+  margin: 2px 3px;
   padding: 0;
   width: 100%;
 }
@@ -265,7 +252,7 @@ background: white;
 
 .pixelBox-active {
   border: solid 2px black;
-  margin: 0;
+  margin: 0px 1px;
   padding: 0;
 }
 

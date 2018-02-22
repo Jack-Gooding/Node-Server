@@ -681,8 +681,39 @@ $(".device").on({
         },
 });
 
+function getRotationDegrees(obj) {
+    var matrix = obj.css("-webkit-transform") ||
+    obj.css("-moz-transform")    ||
+    obj.css("-ms-transform")     ||
+    obj.css("-o-transform")      ||
+    obj.css("transform");
+    if(matrix !== 'none') {
+        var values = matrix.split('(')[1].split(')')[0].split(',');
+        var a = values[0];
+        var b = values[1];
+        var angle = Math.round(Math.atan2(b, a) * (180/Math.PI));
+    } else { var angle = 0; }
+    return angle;
+}
+
 // dan test jquery
 $(document).ready(function() {
+
+  $(".main-content").on({
+    mouseenter : function() {
+      $(this).find(".show-hide-button").addClass("show-hide-button-active");
+  },
+    mouseleave : function() {
+      $(this).find(".show-hide-button").removeClass("show-hide-button-active");
+    },
+});
+
+  $(".show-hide-button").on({
+    click : function() {
+      let currentRotate = getRotationDegrees($(this).find("span")) + 180;
+      $(this).find("span").css("transform", "translateY(-70%) translateX(-50%) scale(1.5) rotate("+currentRotate+"deg)");
+    },
+  })
 
 $( ".device" ).on("dblclick", function(){
   if (!$(this).hasClass('grey')) {

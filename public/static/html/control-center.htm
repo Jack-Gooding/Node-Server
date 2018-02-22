@@ -6,9 +6,9 @@
 <body>
 
 
-<div class="row main-content"  id="resizable">
-  <div class="col">
-    <div class="row"><h3 >Phillips Hue Lights</h3><span style="position: absolute; left: 350px; top: 20px; transform: translateY(-50%);" data-toggle="collapse" href="#hueCollapse" class="fa fa-active fa-chevron-right"></span><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings"></span></div>
+<div class="row main-content"  id="resizable" style="">
+  <div class="col" style="">
+    <div class="row"><h3 >Phillips Hue Lights</h3><div class="settings-hub"><span class="fa fa-active fa-rotate-right"></span>&nbsp;<span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings"></span></div></div>
 
       <div class="row device-box">
         <div  class="col-md col-xs-12 " data="{{$index}}" ng-click="updateSliderUI(deviceName, $index)" ng-dblclick="dblclickOnOff($index)" ng-repeat="deviceName in devices" >
@@ -45,29 +45,33 @@
             </div>
           </div>
         </div>
-        <div class="row" ng-show="hueMostUsed">
-          <div class="col">
-            <div class="row frequent-colour-container">
-              <div class="col save-colour-block save-colour-active"><div><p class="save-colour-icon" ng-click="colourSave()">+</p></div></div>
-              <div class="col save-colour-block save-colour-inactive"></div>
-              <div class="col save-colour-block save-colour-inactive"></div>
-              <div class="col save-colour-block save-colour-inactive"></div>
-              <div class="col save-colour-block save-colour-inactive"></div>
-              <div class="col save-colour-block save-colour-inactive"></div>
-              <div class="col save-colour-block randomise" ng-click="randomiseColours()"><p>Randomise<br>Colours</p></div>
-            </div>
-          </div>
-        </div>
       </div>
       <div class="col-sm-2" ng-show="showSwatch" style="margin: 10px 0;" >
         <div class="colour-swatch row" style="border-radius: 10px 10px 0 0; background: rgb({{red}},{{green}},{{blue}});"><p class="swatch-info swatch-colour-info" ng-show="colourInfo">rgb({{red}},{{green}},{{blue}})</p></div>
         <div class="brightness-swatch row" style="border-radius: 0 0 10px 10px; background: rgb({{brightness/100*255}},{{brightness/100*255}},{{brightness/100*255}}); "><p ng-show="colourInfo" class="swatch-info swatch-brightness-info">{{brightness}}/100</p></div>
-        <div class="hue-submit row" ng-click="sendHueData()"><h3 style="line-height: 100%; text-align: center; Position: relative; top:50%; transform: translateY(-40%); font-weight: bold; width: 100%;">Update</h3></div>
+      </div>
+    </div>
+    <div class="row" ng-show="hueMostUsed">
+      <div class="col">
+        <div class="row frequent-colour-container">
+          <div class="col-xs-6 col-sm save-colour-block save-colour-active"><div><p class="save-colour-icon" ng-click="colourSave()">+</p></div></div>
+          <div class="col-xs-6 col-sm save-colour-block save-colour-inactive"></div>
+          <div class="col-xs-6 col-sm save-colour-block save-colour-inactive"></div>
+          <div class="col-xs-6 col-sm save-colour-block save-colour-inactive"></div>
+          <div class="col-xs-6 col-sm save-colour-block save-colour-inactive"></div>
+          <div class="col-xs-6 col-sm save-colour-block save-colour-inactive"></div>
+          <div class="col-xs-6 col-sm save-colour-block randomise" ng-click="randomiseColours()"><p>Random<br>Colours</p></div>
+        </div>
+      </div>
+      <div class="col-sm-2" style="margin: 0; padding: 0;">
+        <div class="hue-submit" ng-click="sendHueData()"><h3>Update</h3></div>
       </div>
     </div>
   </div>
 </div>
-
+<div class="show-hide-button" data-toggle="collapse" href="#hueCollapse">
+  <span style="position: absolute; left: 50%; top: 50%; transform: translateY(-70%) translateX(-50%) scale(1.5) rotate(180deg); " class="fa fa-active fa-chevron-down"></span>
+</div>
   </div>
   </div>
 
@@ -106,7 +110,10 @@
     <div class="row" style="padding: 10px 0;">
       <div class="col pixelBox pixelBox-active" data="{{$index}}" ng-repeat="x in ledArray" ng-click="updatePixelSliderUI($index)"><div style="background: rgb({{x.state.red}},{{x.state.green}},{{x.state.blue}});"></div></div>
     </div>
+
     <div class="row panel-collapse collapse" id="pixelCollapse">
+    <div class="col">
+      <div class="row">
       <div class="col-sm-3">
         <div class="row">
           <input id="fullSliderSelect" class="pixelSelectionButton" style="position: fixed; visibility: hidden;" type="radio" name="pixelSelection" ng-model="pixelSelection" value="string"/>
@@ -188,8 +195,13 @@
         </div>
       </div>
     </div>
+    </div>
+  </div>
   </div>
 </div>
+
+
+
 <div class="row main-content">
   <div class="col">
     <div class="row"><h3>TP-Link Smart Plugs </h3></div>

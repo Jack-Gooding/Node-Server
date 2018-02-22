@@ -7,6 +7,10 @@ input[type=range] {
   margin: 0;
 }
 
+.slider {
+  margin: 10px 0;
+}
+
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
 }
@@ -78,7 +82,7 @@ input[type=range]::-moz-range-thumb {
   border: 0px solid #000000;
   width: 22px;
   border-radius: 50%;
-  background: #777799;
+  background: #888;
   cursor: pointer;
 }
 
@@ -111,7 +115,7 @@ input[type=range].blueSlider::-moz-range-progress {
   border-radius: 4.2px;
 }
 input[type=range].brightnessSlider::-moz-range-progress {
-  background-color: #777799;
+  background-color: #888;
   height: 8.4px;
   border-radius: 4.2px;
 }
