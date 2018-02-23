@@ -38,7 +38,8 @@ overflow-x: hidden;
 }
 
 .header-hud {
-  right: 5%;
+  right: 3%;
+  transform: translateY(-40%);
 }
 
 .main-content {
