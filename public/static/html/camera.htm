@@ -4,7 +4,7 @@
   <title>Monitoring</title>
 </head>
 <body>
-<div class="row main-content" ng-controller="rgbStripCtrl" style="height: 100%; position: relative;">
+<div class="row main-content"  style="height: 100%; position: relative;">
   <div class="col">
     <div class="row">
   <h3>Camera</h3>
@@ -12,13 +12,13 @@
 </div>
   <div class="row photo-container">
     <div class="col" >
-        <img src="./static/images/billgates.jpeg">
+        <img src="{{photoArray}}"/>
     </div>
     <div class="col">
-      <img src="img.png">
+      <img src="favicon.ico">
     </div>
     <div class="col">
-      <img src="img.png">
+      <img ng-click="updatePhotoArray" src="TimeShot_Me_2018_03_05@22-30-24.jpg">
     </div>
 </div>
 </div>

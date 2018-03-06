@@ -635,6 +635,14 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
         };
         socket.emit("TPLinkPlugState", true);
       };
+
+      //Camera controller
+
+      $scope.updatePhotoArray = function(newArray) {
+        $scope.photoArray = newArray;
+        $compile($("img").attr("src",$scope.photoArray));
+      };
+      $scope.photoArray = "test1.jpg";
       extScope = $scope; //allows access to the $scope object outside of the Angular Contructor
 });
 
@@ -726,6 +734,8 @@ $(".fa-chevron-right").click(function(){
   $(this).animate({'-moz-transform': "rotate(45deg)"},200);
 })
 });
+
+
 //Attach id="resizable" to an element to have it be vertially resizable.
 /*$( function() {
   $( "#resizable" ).resizable({
@@ -777,6 +787,8 @@ socket.on('hueLights', function(data) {
 });
 
 
+
+
 //======================//
 // Various Button onClick functions
 //======================//
@@ -800,7 +812,16 @@ socket.emit('getLightStatus');
 },500);
 
 let newData = [];
+
 socket.on('giveLightStatus', function(data) {
   newData = data;
   extScope.initialiseHueState();
 });
+
+socket.on('newestPhoto', function(newestPhoto) {
+  extScope.updatePhotoArray(newestPhoto.file);
+});
+
+let updateLightStatus = function() {
+  socket.emit('updateLightStatus');
+};

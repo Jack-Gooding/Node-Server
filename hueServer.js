@@ -185,8 +185,38 @@ api.lights(function(err, devices ) {
   console.log(lightStatus);
 
 });
+let photosDir = '../../jack/fileShare/TimeShot_Captures';
+let newestPhoto = {};
+fs.readdir(photosDir, function(err, files) {
+  let fileArray = files;
+  var newest = { file: files[0]
+              };
+  var checked = 0;
+  fs.stat(photosDir+"/"+newest.file, function(err, stats) {
+    newest.mtime = stats.mtime;
+  });
+  for (var i = 0; i < files.length; i++) {
+    let file = fileArray[i];
+    fs.stat(photosDir+"/"+file, function(err, stats) {
+      ++checked;
+      if (stats.mtime.getTime() > newest.mtime.getTime()) {
+        newest = {
+          file : file,
+          mtime : stats.mtime,
+          atime: stats.atime,
+          birthdate: stats.birthtime,
+        };
+      };
+      if (checked == files.length) {
+        newestPhoto = newest;
+        console.log(newest);
+      }
+    })
+  }
+});
 
 app.use(express.static('public'));
+app.use(express.static(photosDir));
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/public/index.html');
 });
@@ -200,6 +230,42 @@ io.on('connection', function(socket){
     console.log('user disconnected');
   });
 
+  setTimeout(function() {
+
+  socket.emit("newestPhoto", newestPhoto);
+}, 1000);
+
+socket.on('updateLightStatus', function() {
+  api.lights(function(err, devices ) {
+      lightStatus = [];
+      if (err) throw err;
+      let lightsJSON = JSON.stringify(devices, null, 2);
+      lightsJSON = JSON.parse(lightsJSON);
+      lightsJSON = lightsJSON.lights;
+      for (let i = 0; i < lightsJSON.length; i++) {
+        if (lightsJSON[i].state.reachable) {
+
+          lightStatus.push(
+            {
+              "name":lightsJSON[i].name,
+              "type":lightsJSON[i].type,
+              "id":lightsJSON[i].id,
+              "state":{
+                        "on":lightsJSON[i].state.on,
+                        "brightness":lightsJSON[i].state.bri,
+                        "rgb": (lightsJSON[i].type === 'Extended color light') ? cie_to_rgb(lightsJSON[i].state.xy[0],lightsJSON[i].state.xy[1],lightsJSON[i].state.brightness) : "rgb(240,200,140)" ,
+                      },
+            }
+          )
+        };
+    };
+
+    console.log(lightStatus);
+
+  });
+  socket.emit("giveLightStatus", lightStatus);
+});
+
 socket.on('getLightStatus', function() {
   socket.emit("giveLightStatus", lightStatus);
 });
@@ -211,7 +277,6 @@ socket.on('getLightStatus', function() {
   });
 
   socket.on("sendPixelArray", function(ledPixelArray) {
-    console.log(ledPixelArray);
     pixelDataStore = ledPixelArray;
     for (var i = 0; i < ledPixelArray.length; i++) {
       x = ledPixelArray[i].state;
@@ -231,12 +296,12 @@ socket.on('getLightStatus', function() {
   });
 
   let temp = fs.readFile("/sys/class/thermal/thermal_zone0/temp", function(err, data) {
-  console.log(data/1000);
+  //console.log(data/1000);
   socket.emit('piTemperatureUpdate', data/1000, cRoomTemp);
 });
   setInterval(function() {
   let temp = fs.readFile("/sys/class/thermal/thermal_zone0/temp", function(err, data) {
-  console.log(data/1000);
+  //console.log(data/1000);
   socket.emit('piTemperatureUpdate', data/1000, cRoomTemp);
   if (data/1000 > 43) {
     piFan.writeSync(1);
@@ -464,7 +529,6 @@ ds18x20.get("28-0316c2c8bbff", function(err, value) {
     console.log("Temp Sensing Error: "+err);
     return;
   } else {
-  console.log('Current temperature is', value);
   roomTemp = value;
   let today = getDate();
   let timeNow = getTime();
@@ -479,7 +543,7 @@ ds18x20.get("28-0316c2c8bbff", function(err, value) {
       delete roomTemps[x];
     };
   };
-  console.log(roomTemps);
+  //console.log(roomTemps);
 
   }
 });
