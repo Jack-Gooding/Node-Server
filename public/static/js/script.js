@@ -640,7 +640,7 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
 
       $scope.updatePhotoArray = function(newArray) {
         $scope.photoArray = newArray;
-        $compile($("img").attr("src",$scope.photoArray));
+        $compile($(".recentPhoto").attr("src",$scope.photoArray));
       };
       $scope.photoArray = "test1.jpg";
       extScope = $scope; //allows access to the $scope object outside of the Angular Contructor

@@ -106,7 +106,7 @@
 
 <div class="row main-content">
   <div class="col">
-    <div class="row" data-toggle="collapse" href="#pixelCollapse"><h3>RGB Strips</h3><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings" ></span></div>
+    <div class="row" data-toggle="collapse" href="#pixelCollapse"><h3>RGB Strips</h3><div class="settings-hub"><span onclick="updateRGBStripStatus()" class="fa fa-active fa-rotate-right"></span>&nbsp;<span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#rgb-strip-settings"></span></div></div>
     <div class="row" style="padding: 10px 0;">
       <div class="col pixelBox pixelBox-active" data="{{$index}}" ng-repeat="x in ledArray" ng-click="updatePixelSliderUI($index)"><div style="background: rgb({{x.state.red}},{{x.state.green}},{{x.state.blue}});"></div></div>
     </div>
@@ -204,7 +204,7 @@
 
 <div class="row main-content">
   <div class="col">
-    <div class="row"><h3>TP-Link Smart Plugs </h3></div>
+    <div class="row"><h3>TP-Link Smart Plugs </h3> <div class="settings-hub"><span onclick="updateRGBStripStatus()" class="fa fa-active fa-rotate-right"></span>&nbsp;<span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#rgb-strip-settings"></span></div></div>
     <div class="row"><div class="col" ng-repeat="device in TPLinkDevices">
       <div class="TPLinkDevice" ng-click="TPLinkDeviceOnOff($index)" style="background: {{device.background}}">
         <p>{{device.name}}</p>
