@@ -13,6 +13,7 @@ input[type=range] {
 
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
+  transform: translateZ(20px)
 }
 
 input[type=range]:focus {
@@ -39,6 +40,7 @@ input[type=range]::-webkit-slider-thumb {
   cursor: pointer;
   margin-top: -14px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
+  transform: translateZ(20px);
 }
 
 
@@ -51,6 +53,7 @@ input[type=range]::-ms-thumb {
   border-radius: 50%;
   background: #bbbbbb;
   cursor: pointer;
+  transform: translateZ(20px);
 }
 
 input[type=range]::-webkit-slider-runnable-track {
@@ -84,19 +87,23 @@ input[type=range]::-moz-range-thumb {
   border-radius: 50%;
   background: #888;
   cursor: pointer;
+  transform: translateZ(20px);
 }
 
 input[type=range].redSlider::-moz-range-thumb {
   border: 0px solid #ef5350;
   background: #ef5350;
+  transform: translateZ(20px);
 }
 input[type=range].blueSlider::-moz-range-thumb {
   border: 0px solid #42a5f5;
   background: #42a5f5;
+  transform: translateZ(20px);
 }
 input[type=range].greenSlider::-moz-range-thumb {
   border: 0px solid #9ccc65;
   background: #9ccc65;
+  transform: translateZ(20px);
 }
 
 input[type=range].redSlider::-moz-range-progress {

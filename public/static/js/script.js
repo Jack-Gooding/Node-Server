@@ -825,3 +825,21 @@ socket.on('newestPhoto', function(newestPhoto) {
 let updateLightStatus = function() {
   socket.emit('updateLightStatus');
 };
+
+$(document).ready(function() {
+  $('span').hover(
+    function () {
+      //show its submenu
+      $(".blind-slider").slideToggle();
+    },
+    function () {
+      //hide its submenu
+      $(".blind-slider").slideToggle();
+    });
+
+});
+
+const tilt = $('.js-tilt').tilt({
+    scale: 1.2,
+    disableAxis: x,
+});

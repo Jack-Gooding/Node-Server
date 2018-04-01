@@ -8,7 +8,8 @@
 
 <div class="row main-content"  id="resizable" style="">
   <div class="col" style="">
-    <div class="row"><h3 >Phillips Hue Lights</h3><div class="settings-hub"><span onclick="updateLightStatus()" class="fa fa-active fa-rotate-right"></span>&nbsp;<span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings"></span></div></div>
+    <div class="row"><h3 >Phillips Hue Lights</h3><div
+class="settings-hub"><span onclick="updateLightStatus()" class="fa fa-active fa-rotate-right"></span>&nbsp;<span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings"></span></div></div>
 
       <div class="row device-box">
         <div  class="col-md col-xs-12 " data="{{$index}}" ng-click="updateSliderUI(deviceName, $index)" ng-dblclick="dblclickOnOff($index)" ng-repeat="deviceName in devices" >
@@ -27,7 +28,7 @@
       <div class="col">
         <div class="row">
       <div class="col" >
-        <div class="row slider-container" style="margin: 1%;">
+        <div class="row slider-container" style="margin: 1%;" >
           <input type="range" min="0" max="255" ng-model="red" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider redSlider hueColourSlider" id="redSlider">
           <input type="range" min="0" max="255" ng-model="green" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider greenSlider hueColourSlider" id="greenSlider">
           <input type="range" min="0" max="255" ng-model="blue" ng-change="colourUpdate()" ng-disabled="colourSliderDisabled" class="slider blueSlider hueColourSlider" id="blueSlider">
@@ -108,7 +109,7 @@
   <div class="col">
     <div class="row" data-toggle="collapse" href="#pixelCollapse"><h3>RGB Strips</h3><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#hue-settings" ></span></div>
     <div class="row" style="padding: 10px 0;">
-      <div class="col pixelBox pixelBox-active" data="{{$index}}" ng-repeat="x in ledArray" ng-click="updatePixelSliderUI($index)"><div style="background: rgb({{x.state.red}},{{x.state.green}},{{x.state.blue}});"></div></div>
+      <div data-tilt data-tilt-perspective="250" data-tilt-scale="1.1" class="col pixelBox pixelBox-active" data="{{$index}}" ng-repeat="x in ledArray" ng-click="updatePixelSliderUI($index)"><div style="background: rgb({{x.state.red}},{{x.state.green}},{{x.state.blue}});"></div></div>
     </div>
 
     <div class="row panel-collapse collapse" id="pixelCollapse">
@@ -215,7 +216,7 @@
   </div>
 </div>
 <div class="row main-content">
-  <h3>Blind Motor (soon) </h3>
+  <h3>Blind Motor (soon) </h3><div><span> TEST<input class="blind-slider" orient="vertical" type="range" min="0" max="100"></input></span></div>
   <div></div>
 </div>
 <div class="row main-content">
@@ -226,3 +227,4 @@
 <script>
 
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tilt.js/1.2.1/tilt.jquery.min.js"></script>
