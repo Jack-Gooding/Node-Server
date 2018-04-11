@@ -164,9 +164,11 @@ api.lights(function(err, devices ) {
     let lightsJSON = JSON.stringify(devices, null, 2);
     lightsJSON = JSON.parse(lightsJSON);
     lightsJSON = lightsJSON.lights;
-    for (let i = 0; i < lightsJSON.length; i++) {
-      if (lightsJSON[i].state.reachable) {
 
+    for (let i = 0; i < lightsJSON.length; i++) {
+
+      //If the light bulb is on, get info from the hub.
+      if (lightsJSON[i].state.reachable) {
         lightStatus.push(
           {
             "name":lightsJSON[i].name,
@@ -175,6 +177,7 @@ api.lights(function(err, devices ) {
             "state":{
                       "on":lightsJSON[i].state.on,
                       "brightness":lightsJSON[i].state.bri,
+                      // If bulb is RGB, return the converted CIE colour, else return 'N/A'
                       "rgb": (lightsJSON[i].type === 'Extended color light') ? cie_to_rgb(lightsJSON[i].state.xy[0],lightsJSON[i].state.xy[1],lightsJSON[i].state.brightness) : "rgb(240,200,140)" ,
                     },
           }
@@ -182,9 +185,12 @@ api.lights(function(err, devices ) {
       };
   };
 
-  console.log(lightStatus);
-
 });
+
+//======================================//
+//   Scrapes Photos from local files    //
+//======================================//
+
 let photosDir = '../../jack/fileShare/TimeShot_Captures';
 let newestPhoto = {};
 fs.readdir(photosDir, function(err, files) {
@@ -215,56 +221,64 @@ fs.readdir(photosDir, function(err, files) {
   }
 });
 
+
+
+// Defines locations accessible from server
 app.use(express.static('public'));
 app.use(express.static(photosDir));
+
+// Very basic routing, only defines root directory. Further routing done in 'index.js'
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/public/index.html');
 });
 
 
-
+//When a client connects to the server;
 io.on('connection', function(socket){
   console.log('user connected');
-  socket.emit("motionDetectSend", motionDetectStatus);
+
+  //Wait for disconnection, notify when done
   socket.on('disconnect', function(){
     console.log('user disconnected');
   });
 
-  setTimeout(function() {
+  //Update client with Motion Detection on/off status
+  socket.emit("motionDetectSend", motionDetectStatus);
 
+  //Update client with array of most recent photos
   socket.emit("newestPhoto", newestPhoto);
-}, 1000);
 
-socket.on('updateLightStatus', function() {
-  api.lights(function(err, devices ) {
-      lightStatus = [];
-      if (err) throw err;
-      let lightsJSON = JSON.stringify(devices, null, 2);
-      lightsJSON = JSON.parse(lightsJSON);
-      lightsJSON = lightsJSON.lights;
-      for (let i = 0; i < lightsJSON.length; i++) {
-        if (lightsJSON[i].state.reachable) {
+  //Wait for request, detect the status of hue lights, send to client
+  socket.on('updateLightStatus', function() {
+    api.lights(function(err, devices ) {
+        lightStatus = [];
+        if (err) throw err;
+        let lightsJSON = JSON.stringify(devices, null, 2);
+        lightsJSON = JSON.parse(lightsJSON);
+        lightsJSON = lightsJSON.lights;
+        for (let i = 0; i < lightsJSON.length; i++) {
+          if (lightsJSON[i].state.reachable) {
 
-          lightStatus.push(
-            {
-              "name":lightsJSON[i].name,
-              "type":lightsJSON[i].type,
-              "id":lightsJSON[i].id,
-              "state":{
-                        "on":lightsJSON[i].state.on,
-                        "brightness":lightsJSON[i].state.bri,
-                        "rgb": (lightsJSON[i].type === 'Extended color light') ? cie_to_rgb(lightsJSON[i].state.xy[0],lightsJSON[i].state.xy[1],lightsJSON[i].state.brightness) : "rgb(240,200,140)" ,
-                      },
-            }
-          )
-        };
-    };
+            lightStatus.push(
+              {
+                "name":lightsJSON[i].name,
+                "type":lightsJSON[i].type,
+                "id":lightsJSON[i].id,
+                "state":{
+                          "on":lightsJSON[i].state.on,
+                          "brightness":lightsJSON[i].state.bri,
+                          "rgb": (lightsJSON[i].type === 'Extended color light') ? cie_to_rgb(lightsJSON[i].state.xy[0],lightsJSON[i].state.xy[1],lightsJSON[i].state.brightness) : "rgb(240,200,140)" ,
+                        },
+              }
+            )
+          };
+      };
 
-    console.log(lightStatus);
+      console.log(lightStatus);
 
+    });
+    socket.emit("giveLightStatus", lightStatus);
   });
-  socket.emit("giveLightStatus", lightStatus);
-});
 
 socket.on('getLightStatus', function() {
   socket.emit("giveLightStatus", lightStatus);
@@ -413,8 +427,10 @@ let takePhoto = function(Intruder) {
 
 let timeNow = getTime();
 let today = getDate();
+
 let cameraPath = Intruder === "IntruderAlert" ? "Intruder_Detection/Intruder_Detected_" : "TimeShot_Captures/TimeShot_Me_";
     recentPhoto = "../../jack/fileShare/"+ cameraPath + today +"@"+timeNow+".jpg";
+
 var camera = new RaspiCam({mode:"photo", output:recentPhoto, e:"jpg", width: 1920, height: 1080, log:"" , quality:100, q:100, sh: 0, co: 0,});
 
 camera.start();
