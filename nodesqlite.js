@@ -111,7 +111,7 @@ ds18x20.get("28-0316c2c8bbff", function(err, value) {
 
   });
 });
-}, 10000);
+}, 1000*60*5);
 
 process.on('SIGINT', function () { //on ctrl+c
   console.log("Closing down on Request.");

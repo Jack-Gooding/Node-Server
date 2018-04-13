@@ -1,58 +1,26 @@
-//==========================//
-//      Created modules     //
-//==========================//
-
-var { counter, incCounter } = require('./modules/counter');
-var colour_converter = require('./modules/colour_converter');
-var dateTime = require('./modules/dateTime');
-
-//==========================//
-// Node.js // npm  packages //
-//==========================//
-
-//===============================================//
-//==============    Software    ================//
-//===============================================//
-var express = require('express'); //Webserver hosting
+var express = require('express');
 var app = express();
 var http = require('http').Server(app);
-
-var io = require('socket.io')(http); //two way communication between client <--> server
-
+var io = require('socket.io')(http);
+var path = require('path');
 var fs = require('fs'); //require filesystem module
-var path = require('path'); //Supporting package for fs
+var mongo = require('mongodb');  //require mongodb Database module
 
-var nodemailer = require('nodemailer'); //Email package
+var nodemailer = require('nodemailer');
 
-var TPLSmartDevice = require('tplink-lightbulb'); //Allows control of TP-Link HS100 Wifi smart plugs
 
-//===============================================//
-//===============    Hardware    ================//
-//===============================================//
-
-var Gpio = require('onoff').Gpio; //include onoff to interact with the GPIO
-
+var ds18x20 = require('ds18x20');
 var RaspiCam = require("raspicam"); //include Raspberry Pi Camera module
 
-var ws281x = require('rpi-ws281x-native');// ws281x addressable RGB strip
-
-var ds18x20 = require('ds18x20'); // ds18x20 temperature sensor,  1-wire, serial
-
-//===============================================//
-//============    GPIO Variables     ============//
-//===============================================//
-
+var Gpio = require('onoff').Gpio; //include onoff to interact with the GPIO
 var pushButton = new Gpio(17, 'in', 'both'); //use GPIO pin 17 as input, and 'both' button presses, and releases should be handled
 
-var piFan = new Gpio(27, 'out'); //Raspberry Pi Case Fan
+var piFan = new Gpio(27, 'out');
 piFan.writeSync(1); //Fan on when Server Starts
 
-var pirSensor = new Gpio(26,'in', 'both'), motionDetectStatus = false; //Motion Detection using infrared sensor, off at launch
-
-
-//=======================//
-//   TP-Link plug setup  //
-//=======================//
+let motionDetectStatus = false;
+var pirSensor = new Gpio(26,'in', 'both');
+let TPLSmartDevice = require('tplink-lightbulb');
 
 let plugs;
 // turn first discovered light off
@@ -66,38 +34,41 @@ const scan = TPLSmartDevice.scan()
       },
     ];
     console.log(plugs);
-    scan.stop()
+        scan.stop()
   });
 
 
-//========================//
-//    ws2812b LED setup   //
-//========================//
+var ws281x = require('rpi-ws281x-native');// ws281x addressable RGB strip
 
 var NUM_LEDS = parseInt(process.argv[2], 10) || 25,
-    pixelData = new Uint32Array(NUM_LEDS),
-    pixelDataStore;
+    pixelData = new Uint32Array(NUM_LEDS);
+    let pixelDataStore;
 
 ws281x.init(NUM_LEDS);
-
-function rgb2Int(r, g, b) {
-  return ((r & 0xff) << 16) + ((g & 0xff) << 8) + (b & 0xff);
-}
-
 for (var i = 0; i < NUM_LEDS; i+=5) {
     pixelData[i] = rgb2Int(255,255,150);
 };
 ws281x.render(pixelData);
-
 setInterval(function() {
   ws281x.render(pixelData);
 
 },5000);
 
+function rgb2Int(r, g, b) {
+  return ((r & 0xff) << 16) + ((g & 0xff) << 8) + (b & 0xff);
+}
 
 //=============//
 //  Hue Setup  //
 //=============//
+
+
+ledRed = 0;
+ledGreen = 0;
+ledBlue = 0;
+redRGB = 0, //set starting value of RED variable to off (0 for common cathode)
+greenRGB = 0, //set starting value of GREEN variable to off (0 for common cathode)
+blueRGB = 0; //set starting value of BLUE variable to off (0 for common cathode)
 
 let x;
 
@@ -117,6 +88,74 @@ lightState = hue.lightState;
 var host = "192.168.1.64",
 username = "8FNEwdPyoc9eVRxP7ukCnf4QFowMK2aoHOmBuJdi",
 api = new HueApi(host, username), state;
+
+/**
+ * Converts CIE color space to RGB color space
+ * @param {Number} x
+ * @param {Number} y
+ * @param {Number} brightness - Ranges from 1 to 254
+ * @return {Array} Array that contains the color values for red, green and blue
+ */
+function cie_to_rgb(x, y, brightness)
+{
+	//Set to maximum brightness if no custom value was given (Not the slick ECMAScript 6 way for compatibility reasons)
+	if (brightness === undefined) {
+		brightness = 254;
+	}
+
+	var z = 1.0 - x - y;
+	var Y = (brightness / 254).toFixed(2);
+	var X = (Y / y) * x;
+	var Z = (Y / y) * z;
+
+	//Convert to RGB using Wide RGB D65 conversion
+	var red 	=  X * 1.656492 - Y * 0.354851 - Z * 0.255038;
+	var green 	= -X * 0.707196 + Y * 1.655397 + Z * 0.036152;
+	var blue 	=  X * 0.051713 - Y * 0.121364 + Z * 1.011530;
+
+	//If red, green or blue is larger than 1.0 set it back to the maximum of 1.0
+	if (red > blue && red > green && red > 1.0) {
+
+		green = green / red;
+		blue = blue / red;
+		red = 1.0;
+	}
+	else if (green > blue && green > red && green > 1.0) {
+
+		red = red / green;
+		blue = blue / green;
+		green = 1.0;
+	}
+	else if (blue > red && blue > green && blue > 1.0) {
+
+		red = red / blue;
+		green = green / blue;
+		blue = 1.0;
+	}
+
+	//Reverse gamma correction
+	red 	= red <= 0.0031308 ? 12.92 * red : (1.0 + 0.055) * Math.pow(red, (1.0 / 2.4)) - 0.055;
+	green 	= green <= 0.0031308 ? 12.92 * green : (1.0 + 0.055) * Math.pow(green, (1.0 / 2.4)) - 0.055;
+	blue 	= blue <= 0.0031308 ? 12.92 * blue : (1.0 + 0.055) * Math.pow(blue, (1.0 / 2.4)) - 0.055;
+
+
+	//Convert normalized decimal to decimal
+	red 	= Math.round(red * 255);
+	green 	= Math.round(green * 255);
+	blue 	= Math.round(blue * 255);
+
+	if (isNaN(red))
+		red = 0;
+
+	if (isNaN(green))
+		green = 0;
+
+	if (isNaN(blue))
+		blue = 0;
+
+
+	return "rgb("+red+","+green+","+blue+")";
+}
 
 var lightStatus = [];
 api.lights(function(err, devices ) {
@@ -139,7 +178,7 @@ api.lights(function(err, devices ) {
                       "on":lightsJSON[i].state.on,
                       "brightness":lightsJSON[i].state.bri,
                       // If bulb is RGB, return the converted CIE colour, else return 'N/A'
-                      "rgb": (lightsJSON[i].type === 'Extended color light') ? colour_converter.cie_to_rgb(lightsJSON[i].state.xy[0],lightsJSON[i].state.xy[1],lightsJSON[i].state.brightness) : "rgb(240,200,140)" ,
+                      "rgb": (lightsJSON[i].type === 'Extended color light') ? cie_to_rgb(lightsJSON[i].state.xy[0],lightsJSON[i].state.xy[1],lightsJSON[i].state.brightness) : "rgb(240,200,140)" ,
                     },
           }
         )
@@ -228,7 +267,7 @@ io.on('connection', function(socket){
                 "state":{
                           "on":lightsJSON[i].state.on,
                           "brightness":lightsJSON[i].state.bri,
-                          "rgb": (lightsJSON[i].type === 'Extended color light') ? colour_converter.cie_to_rgb(lightsJSON[i].state.xy[0],lightsJSON[i].state.xy[1],lightsJSON[i].state.brightness) : "rgb(240,200,140)" ,
+                          "rgb": (lightsJSON[i].type === 'Extended color light') ? cie_to_rgb(lightsJSON[i].state.xy[0],lightsJSON[i].state.xy[1],lightsJSON[i].state.brightness) : "rgb(240,200,140)" ,
                         },
               }
             )
@@ -340,11 +379,54 @@ socket.on('TPLinkPlugState', function() {
 //==Camera Control==//
 //==================//
 
+let getTime = function() {
+  var today = new Date();
+
+  var hh = today.getHours();
+  var m = today.getMinutes();
+  var ss = today.getSeconds();
+
+  if(hh<10) {
+      hh = '0'+hh
+  }
+  if(m<10) {
+      m = '0'+m
+  }
+  if(ss<10) {
+      ss = '0'+ss
+  }
+
+
+  let timeNow = hh + "-" + m + "-" + ss;
+  return timeNow;
+}
+let recentPhoto;
+let getDate = function() {
+  let today = new Date();
+
+  var dd = today.getDate();
+  var mm = today.getMonth()+1; //January is 0!
+  var yyyy = today.getFullYear();
+
+  if(dd<10) {
+      dd = '0'+dd
+  }
+
+  if(mm<10) {
+      mm = '0'+mm
+  }
+
+
+  today = yyyy + '_' + mm + '_' + dd;
+  return today;
+
+}
+
+
 let takePhoto = function(Intruder) {
 
-let recentPhoto;
-let timeNow = dateTime.getTime();
-let today = dateTime.getDate();
+let timeNow = getTime();
+let today = getDate();
 
 let cameraPath = Intruder === "IntruderAlert" ? "Intruder_Detection/Intruder_Detected_" : "TimeShot_Captures/TimeShot_Me_";
     recentPhoto = "../../jack/fileShare/"+ cameraPath + today +"@"+timeNow+".jpg";
@@ -369,11 +451,11 @@ var mailOptions = {
   from: 'ironcladjack@live.co.uk',
   to: 'ironcladjack@live.co.uk',
   subject: 'Intruder Detected',
-  text: 'Date: '+dateTime.getDate()+', Time: '+dateTime.getTime(),
+  text: 'Date: '+getDate()+', Time: '+getTime(),
   attachments: [{
-  filename: 'Intruder_Detected_'+dateTime.getDate()+'@'+dateTime.getTime()+'.jpg', // stream this file
+  filename: 'Intruder_Detected_'+getDate()+'@'+getTime()+'.jpg', // stream this file
   path: "../../jack/fileShare/Intruder_Detection/Intruder_Detected_To_Be_Sent.jpg",
-  cid: 'Intruder_Detected_'+dateTime.getDate()+'@'+dateTime.getTime()+'.jpg',
+  cid: 'Intruder_Detected_'+getDate()+'@'+getTime()+'.jpg',
   }]
 };
 
@@ -464,8 +546,8 @@ ds18x20.get("28-0316c2c8bbff", function(err, value) {
     return;
   } else {
   roomTemp = value;
-  let today = dateTime.getDate();
-  let timeNow = dateTime.getTime();
+  let today = getDate();
+  let timeNow = getTime();
   let timeDate = today+"_"+timeNow;
   roomTemps[timeDate] = value;
   //fs.appendFile("./tempLogging", value+"\n")
