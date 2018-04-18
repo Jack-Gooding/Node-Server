@@ -89,6 +89,12 @@ box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   white-space: nowrap;
 }
 
+.device:active {
+  box-shadow: none;
+  transition: all 0.1s ease-in-out;
+}
+
+
 .device-name {
   position: relative;
   overflow: hidden;
@@ -137,7 +143,6 @@ box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   top:15px;
   right: 15px;
   transform: scale(2);
-  border: solid 1px black;
   background: #fff;
   border-radius: 10px;
   padding: 0 5px;
@@ -210,6 +215,17 @@ box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   border: solid 1px black;
   border-radius: 5px;
   text-align: center;
+  background: grey;
+  transition: all 0.2s ease-in-out;
+}
+
+.hue-submit:hover {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.hue-submit:active {
+  transform: scale(0.9);
+  transition: 0.1s;
 }
 
 .hue-submit h3 {
@@ -222,8 +238,9 @@ box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   width: 100%;
 }
 
-.fa {
-
+.fa:active {
+transition: all 0.1s ease-in-out;
+transform: scale(0.9);
 }
 
 .fa-active:hover {
@@ -274,6 +291,12 @@ box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   border-radius: 5px;
   height: 50px;
   margin: 0 1%;
+  transition: all 0.2s ease-in-out;
+
+}
+.save-colour-active:hover {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
 }
 
 .save-colour-block > div {

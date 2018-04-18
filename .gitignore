@@ -1,3 +1,4 @@
+bcm2835-1.55/
 node_modules/
 public/static/js/emailDetails.txt
 public/database/tempertature_monitor.db

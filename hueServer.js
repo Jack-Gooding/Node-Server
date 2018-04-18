@@ -5,7 +5,7 @@
 var { counter, incCounter } = require('./modules/counter');
 var colour_converter = require('./modules/colour_converter');
 var dateTime = require('./modules/dateTime');
-
+var temperatureMonitoring = require('./modules/temperatureMonitoring');
 //==========================//
 // Node.js // npm  packages //
 //==========================//
@@ -16,6 +16,9 @@ var dateTime = require('./modules/dateTime');
 var express = require('express'); //Webserver hosting
 var app = express();
 var http = require('http').Server(app);
+
+const sqlite3 = require('sqlite3').verbose();
+
 
 var io = require('socket.io')(http); //two way communication between client <--> server
 
@@ -36,7 +39,9 @@ var RaspiCam = require("raspicam"); //include Raspberry Pi Camera module
 
 var ws281x = require('rpi-ws281x-native');// ws281x addressable RGB strip
 
-var ds18x20 = require('ds18x20'); // ds18x20 temperature sensor,  1-wire, serial
+
+var piFan = new Gpio(27, 'out'); //Raspberry Pi Case Fan
+piFan.writeSync(1); //Fan on when Server Starts
 
 //===============================================//
 //============    GPIO Variables     ============//
@@ -44,10 +49,11 @@ var ds18x20 = require('ds18x20'); // ds18x20 temperature sensor,  1-wire, serial
 
 var pushButton = new Gpio(17, 'in', 'both'); //use GPIO pin 17 as input, and 'both' button presses, and releases should be handled
 
-var piFan = new Gpio(27, 'out'); //Raspberry Pi Case Fan
-piFan.writeSync(1); //Fan on when Server Starts
+
 
 var pirSensor = new Gpio(26,'in', 'both'), motionDetectStatus = false; //Motion Detection using infrared sensor, off at launch
+
+
 
 
 //=======================//
@@ -203,6 +209,10 @@ io.on('connection', function(socket){
     console.log('user disconnected');
   });
 
+  socket.on('getTemperatureLog', function() {
+    socket.emit('sendTemperatureLog', temperatureMonitoring.temperatureLog);
+  });
+
   //Update client with Motion Detection on/off status
   socket.emit("motionDetectSend", motionDetectStatus);
 
@@ -272,23 +282,8 @@ socket.on('getLightStatus', function() {
 
   let temp = fs.readFile("/sys/class/thermal/thermal_zone0/temp", function(err, data) {
   //console.log(data/1000);
-  socket.emit('piTemperatureUpdate', data/1000, cRoomTemp);
+  //socket.emit('piTemperatureUpdate', data/1000, cRoomTemp);
 });
-  setInterval(function() {
-  let temp = fs.readFile("/sys/class/thermal/thermal_zone0/temp", function(err, data) {
-  //console.log(data/1000);
-  socket.emit('piTemperatureUpdate', data/1000, cRoomTemp);
-  if (data/1000 > 43) {
-    piFan.writeSync(1);
-  } else {
-    piFan.writeSync(0);
-  };
-/*  setTimeout(function() {
-  socket.emit("hueLights", lightStatus);
-},1000);*/
-
-  });
-}, 10000);
 
 socket.on('rgbLed', function(data) { //get light switch status from client
    //output data from WebSocket connection to console
@@ -434,8 +429,7 @@ pushButton.watch(function (err, value) { //Watch for hardware interrupts on push
 
 setInterval(function() {
 	takePhoto();
-
-}, 1200000);
+}, 1000*60*20);
 
 let displayPhoto = function() {
   //SORT THIS OUT
@@ -445,44 +439,25 @@ let displayPhoto = function() {
 //==Temp Logging==//
 //================//
 
+let temperatureLog = [];
 
-
-//==Room Temp==//
-
-let roomTemps = new Object();
-let cRoomTemp = 0
-
+temperatureMonitoring.getTemps(function(result) {
+  console.log(result);
+});
+temperatureLog = temperatureMonitoring.temperatureLog;
 
 setInterval(function() {
-
-let roomTemp;
-
-// ... async call
-ds18x20.get("28-0316c2c8bbff", function(err, value) {
-  if (err) {
-    console.log("Temp Sensing Error: "+err);
-    return;
-  } else {
-  roomTemp = value;
-  let today = dateTime.getDate();
-  let timeNow = dateTime.getTime();
-  let timeDate = today+"_"+timeNow;
-  roomTemps[timeDate] = value;
-  //fs.appendFile("./tempLogging", value+"\n")
-  cRoomTemp = value;
-  console.log("room temp = "+cRoomTemp);
-
-  for (x in roomTemps) {
-    if (Object.keys(roomTemps).length >10) {
-      delete roomTemps[x];
+  temperatureMonitoring.getTemps(function(result) {
+    console.log(result);
+  });
+  temperatureLog = temperatureMonitoring.temperatureLog;
+    if (temperatureLog[0][0] > 43) {
+      piFan.writeSync(1);
+    } else {
+      piFan.writeSync(0);
     };
-  };
-  //console.log(roomTemps);
+}, 1000*60*5);
 
-  }
-});
-
-}, 10000);
 
 let port = 3000;
 http.listen(port, function(){
@@ -490,6 +465,12 @@ http.listen(port, function(){
 });
 
 process.on('SIGINT', function () { //on ctrl+c
+  db.close((err) => {
+    if (err) {
+      return console.error(err.message);
+    }
+    console.log('Closed the database connection.');
+  });
   console.log("Closing down on Request.");
   ws281x.reset();
   process.exit(); //exit completely

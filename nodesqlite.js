@@ -19,24 +19,7 @@ db.run(`CREATE TABLE if not exists langs( temperatureid integer PRIMARY KEY,
   if (err) { return console.log(err) };
 });
 
-/*
 
-// insert one row into the langs table
-db.run(`INSERT INTO langs(date, time, location, temperature) VALUES('2018_04_12', '02:19' , 'Desk', 24)`, function(err) {
-  if (err) { return console.log(err.message); s}
-  // get the last insert id
-  console.log(`A row has been inserted with rowid ${this.lastID}`);
-});
-
-
-db.each(`SELECT temperatureid, date, time, location, temperature FROM langs`, (err, row) => {
-  if (err){
-    throw err;
-  }
-  console.log(`${JSON.stringify(row)}`);
-});
-
-*/
 });
 
 let getTime = function() {
