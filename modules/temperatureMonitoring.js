@@ -128,6 +128,17 @@ return temperatureLog;
 
 };
 
+let closeDb = function() {
+
+db.close((err) => {
+  if (err) {
+    return console.error(err.message);
+  }
+  console.log('Closed the database connection.');
+});
+
+};
 
 exports.getTemps = getTemps;
 exports.temperatureLog = temperatureLog;
+exports.closeDb = closeDb;

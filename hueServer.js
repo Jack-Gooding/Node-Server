@@ -60,22 +60,24 @@ var pirSensor = new Gpio(26,'in', 'both'), motionDetectStatus = false; //Motion 
 //   TP-Link plug setup  //
 //=======================//
 
-let plugs;
-// turn first discovered light off
+let plugs =[];
+
 const scan = TPLSmartDevice.scan()
   .on('light', light => {
-    let plug = JSON.parse(JSON.stringify(light).split('ip :')[0]);
-    plugs = [{
-        name: plug.name,
-        ip: plug.ip,
-        on: plug._sysinfo.relay_state,
-      },
-    ];
-    console.log(plugs);
-    scan.stop()
-  });
-
-
+    light.info()
+      .then(status => {
+          newPlug = {
+            name: light._sysinfo.alias,
+            ip: light.ip,
+            on: light._sysinfo.relay_state,
+          };
+          plugs.push(newPlug)
+        scan.stop();
+        console.log(plugs);
+      })
+      .catch(error => {
+      })
+  })
 //========================//
 //    ws2812b LED setup   //
 //========================//
@@ -213,6 +215,10 @@ io.on('connection', function(socket){
     socket.emit('sendTemperatureLog', temperatureMonitoring.temperatureLog);
   });
 
+  socket.on('getTPLinkPlugStatus', function() {
+    socket.emit('putTPLinkPlugStatus', plugs);
+  });
+
   //Update client with Motion Detection on/off status
   socket.emit("motionDetectSend", motionDetectStatus);
 
@@ -317,16 +323,16 @@ api.setLightState(device, state);
 
 });
 
-socket.on('TPLinkPlugState', function() {
-  console.log(plugs[0].ip);
-  let plugIp = plugs[0].ip;
+socket.on('TPLinkPlugState', function(index) {
+  let plugIp = plugs[index].ip;
+  let plugPowerState = plugs[index].on ? "off" : "on";
   const light = new TPLSmartDevice(plugIp)
-    light.power(!(plugs[0].on))
+    light.power(!(plugs[index].on))
   .then(status => {
-    console.log(status)
+    console.log("Turning "+plugs[index].name+" "+plugPowerState+"!");
   })
   .catch(err => console.error(err))
-    plugs[0].on = (plugs[0].on) ? 0 : 1;
+    plugs[index].on = (plugs[index].on) ? 0 : 1;
 });
 
 });
@@ -335,9 +341,9 @@ socket.on('TPLinkPlugState', function() {
 //==Camera Control==//
 //==================//
 
+let recentPhoto;
 let takePhoto = function(Intruder) {
 
-let recentPhoto;
 let timeNow = dateTime.getTime();
 let today = dateTime.getDate();
 

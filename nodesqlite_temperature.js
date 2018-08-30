@@ -1,7 +1,7 @@
 const sqlite3 = require('sqlite3').verbose();
 var ds18x20 = require('ds18x20');
 
-let db = new sqlite3.Database('./public/database/tempertature_monitor.db', (err) => {
+let db = new sqlite3.Database('./public/database/temptest.db', (err) => {
 
   if (err) {
     return console.error(err.message);

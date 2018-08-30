@@ -614,7 +614,7 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
       $scope.TPLinkOnColour = "#EECCAA";
       $scope.TPLinkOffColour = "#bbb";
       $scope.TPLinkDevices = [{
-            name: "The Magic",
+            name: "3D printer",
             ip: "192.168.0.95",
             on: 0,
             background: $scope.TPLinkOffColour,
@@ -625,6 +625,10 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
             background: $scope.TPLinkOnColour,
           },
         ];
+      $scope.TPLinkBoilerPlate = [];
+      $scope.TPLinkReset = function() {
+        $scope.TPLinkDevices = $scope.TPLinkBoilerPlate;
+      };
       $scope.TPLinkDeviceOnOff = function(index) {
         if ($scope.TPLinkDevices[index].on) {
           $scope.TPLinkDevices[index].on = 0;
@@ -633,7 +637,7 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
           $scope.TPLinkDevices[index].on = 1;
           $scope.TPLinkDevices[index].background = $scope.TPLinkOnColour;
         };
-        socket.emit("TPLinkPlugState", true);
+        socket.emit("TPLinkPlugState", index);
       };
 
       //Camera controller
@@ -654,14 +658,14 @@ let neoPixelEffect = function(effect) {
 AngularApp.config(function($routeProvider) { //Angular routing provides these HTML docs to "<ng-view></ng-view>" element
   $routeProvider
   .when("/", {
-    templateUrl : "./static/html/control-center.htm",
+    templateUrl : "./static/html/control-center.html",
     controller : "AngularApp"
   })
   .when("/monitor", {
-    templateUrl : "./static/html/monitor.htm"
+    templateUrl : "./static/html/monitor.html"
   })
   .when("/camera", {
-    templateUrl : "./static/html/camera.htm"
+    templateUrl : "./static/html/camera.html"
   })
   .otherwise({
     template : "<h1>404 Error</h1><p>Sorry! There's nothing here!</p>"
@@ -786,7 +790,21 @@ socket.on('hueLights', function(data) {
 };
 });
 
+socket.emit('getTPLinkPlugStatus');
 
+socket.on('putTPLinkPlugStatus', function(plugs) {
+  extScope.TPLinkReset();
+  plugs = JSON.stringify(plugs);
+  for (let i = 0; i < JSON.parse(plugs).length; i++) {
+    extScope.$apply(function(){
+      extScope.TPLinkDevices.push({});
+      extScope.TPLinkDevices[i].name = JSON.parse(plugs)[i].name;
+      extScope.TPLinkDevices[i].ip = JSON.parse(plugs)[i].ip;
+      extScope.TPLinkDevices[i].on = JSON.parse(plugs)[i].on;
+      extScope.TPLinkDevices[i].background = extScope.TPLinkDevices[i].on ? extScope.TPLinkOnColour : extScope.TPLinkOffColour;
+    });
+};
+});
 
 
 //======================//
@@ -817,6 +835,7 @@ socket.on('giveLightStatus', function(data) {
   newData = data;
   extScope.initialiseHueState();
 });
+
 
 socket.on('newestPhoto', function(newestPhoto) {
   extScope.updatePhotoArray(newestPhoto.file);
