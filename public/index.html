@@ -40,6 +40,10 @@
           <span class="fa fa-active fa-camera header-quick-buttons-icon" onclick="takePhoto()"></span>
           <span class="fa fa-active fa-eye header-quick-buttons-icon" style="color: red;" ng-dblclick="motionDetectOn()" ng-show="motionDetect"></span>
           <span class="fa fa-active fa-eye-slash header-quick-buttons-icon" ng-dblclick="motionDetectOn()" ng-show="!motionDetect"></span>
+          <div>
+            <p>Motion Cam</p>
+            <div class="indicator-on"></div>
+        </div>
       </div>
   </div>
     <div>
@@ -76,6 +80,7 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="./static/js/vendor/jquery.notify.min.js"></script>
 <!--===========================================================================================-->
 <script src="./static/js/vendor/bootstrap.min.js"></script>
 <!--===========================================================================================-->

@@ -23,6 +23,7 @@ overflow-x: hidden;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
+  display: inline-block;
 }
 
 .header-quick-buttons {
@@ -35,6 +36,15 @@ overflow-x: hidden;
 .header-quick-buttons-icon {
   margin: 0 10px;
   transform: scale(2);
+}
+
+.indicator-on {
+  width: 8px;
+  height: 8px;
+  border-radius: 8px;
+  background: green;
+  border: solid 1px grey;
+
 }
 
 .header-hud {

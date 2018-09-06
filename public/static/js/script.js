@@ -856,6 +856,10 @@ $(document).ready(function() {
       $(".blind-slider").slideToggle();
     });
 
+    $("*").click(function() {
+      $.notify("test","success");
+    })
+
 });
 
 const tilt = $('.js-tilt').tilt({
