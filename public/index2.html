@@ -9,54 +9,32 @@
 <!--===========================================================================================-->
   <link rel="stylesheet" href="./static/css/vendor/bootstrap.min.css">
 <!--===========================================================================================-->
-  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<!--===========================================================================================-->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <!--===========================================================================================-->
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
 <!--===========================================================================================-->
-  <link rel="stylesheet" href="./static/css/style.less">
+  <link rel="stylesheet/less" type="text/css" href="./static/css/style2.less">
+  <script src="./static/js/vendor/less.min.js"></script>
   <link rel="stylesheet" href="./static/css/components/sliders.css">
   <link rel="stylesheet" href="./static/css/components/sidenav.css">
-
 </head>
 
-<style>
-</style>
-
 <body>
-  <div class="container-fluid" ng-app="Angular" >
-  <div ng-controller="AngularApp  as $ctrl">
-    <div class="navbar">
-      <div class="header-menu" >
-        <h4 onclick="openNav()"><span class="fa fa-active fa-navicon"></span>&nbsp;Home</h4>
-      </div>
-  <div>
-      <div class="header-quick-buttons">
-          <span class="fa fa-active fa-level-up blind-control-button header-quick-buttons-icon" ondblclick="blindControl('up')"></span>
-          <!--<span class="fa fa-active fa-camera header-quick-buttons-icon" onclick="takePhoto()"></span>-->
-        <div onclick="takePhoto()">
-            <p>Timelapser</p>
-            <div class="indicator"></div>
+        <div class="hud-icons">
+          <ul>
+            <li>
+              <p>Motion Cam</p>
+              <div class="indicator-on"></div>
+            </li>
+            <li>
+              <p>Timelapse</p>
+              <div class="indicator-on"></div>
+            </li>
+            <li></li>
+          </ul>
         </div>
-        <div ng-dblclick="motionDetectOn()">
-            <p>Motion Cam</p>
-            <div class="indicator"></div>
-        </div>
-      </div>
-  </div>
-    <div>
-      <div class="header-hud">
-        <p>
-          <span id="PiTemp" class="fa fa-thermometer-3">&nbsp;Pi Temp: {{piTemp}}'C </span><br>
-          <span id="RoomTemp" 	class="fa fa-thermometer-1">&nbsp;Room Temp: {{roomTemp}}'C</span>
-        </p>
-      </div>
-    </div>
-  </div>
 
-    <ng-view>
-    </ng-view>
+
 
   <div id="mySidenav" class="sidenav">
   <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
@@ -73,20 +51,17 @@
 </body>
 </html>
 
-<!--===========================================================================================-->
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js"></script>
-<!--===========================================================================================-->
-<script src="./static/js/vendor/jquery-3.2.1.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="./static/js/vendor/jquery.notify.min.js"></script> <!--https://notifyjs.jpillora.com/-->
+<!--===========================================================================================-->
 <script src="./static/js/vendor/bootstrap.min.js"></script>
-<script src="./static/js/vendor/less.min.js"></script>
 <!--===========================================================================================-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
 <!--===========================================================================================-->
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <!--===========================================================================================-->
-<script src="./static/js/script.js" type='module' ></script>
-<script src="./static/js/helpers/notifier.js" type='module'></script>
+<script src="./static/js/script2.js" type=module></script>
+
+<script src="./static/js/helpers/notifier.js" ></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tilt.js/1.2.1/tilt.jquery.min.js"></script>

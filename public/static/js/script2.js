@@ -1,12 +1,53 @@
-import {createNotification} from './helpers/notifier.js';
-import * as cookie from './helpers/cookies.js';
+
 
 let socket = io(); //load socket.io-client and connect to the host that serves the page
 
-function takePhoto() { //onClick for Camera "fa-camera" icon
-  $.notify("Taking Photo..","info");
-  socket.emit("takePhoto");
-};
+//===================//
+//Cookie Control Functions
+//===================//
+
+
+// Creates Cookies
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+  }
+
+// Retreives Cookies from Browsers
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+// Clears specific Cookies
+function deleteCookie(cname) {
+  document.cookie = cname+"=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+}
+
+// Checks if Cookie Exists
+function cookieExists(cookie, base) {
+    if (getCookie(cookie) > base) {
+      let cookie = getCookie(cookie);
+    } else {
+      let cookie = base;
+    }
+
+}
+
+
 
 
 var rgbDevice = [{"state":{"brightness":35},},{"state":{"brightness":35},},{"state":{"brightness":35},},];
@@ -87,11 +128,6 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
   $scope.motionDetect = false;
   $scope.motionDetectOn = function() {
     // toggles motionDetect & emits the value
-    if ($scope.motionDetect) {
-      createNotification("Turning ON Motion Detection...");
-    } else {
-      createNotification("Turning OFF Motion Detection...");
-    }
     $scope.motionDetect = !$scope.motionDetect;
     socket.emit("motionDetectOnOff", $scope.motionDetect);
   };
@@ -337,7 +373,7 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
       $scope.pixelBlue=$scope.ledArray[0].state.blue;
 
       $scope.pixelIndex = []; //Translate which Pixel is selected
-      for (let x in ledPixelArray) {
+      for (x in ledPixelArray) {
         $scope.pixelIndex.push(x);
       };
       $scope.pixelIndexStore;
@@ -645,14 +681,16 @@ $(document).ready(function() {
 
 $(".device").on({
     mouseenter: function() {
+        $(this).css("");
     },
     mouseleave: function() {
+        $(this).css("");
     },
     mousedown: function() {
       $(this).css({"opacity":"1", "transition": "all 0.5s"});
       $(this).siblings().css({"opacity":"0.5", "transition": "all 0.5s"});
       let newDevice = $(this).attr("value");
-      //rgb.device = newDevice;
+      rgb.device = newDevice;
         },
 });
 
@@ -775,7 +813,9 @@ socket.on('putTPLinkPlugStatus', function(plugs) {
 //======================//
 
 
-
+let takePhoto = function() { //onClick for Camera "fa-camera" icon
+  socket.emit("takePhoto");
+};
 
 let blindControl = function(direction) { //onClick for Blinds "fa-level-direction" icon
   if (direction === "up") {
@@ -806,14 +846,20 @@ let updateLightStatus = function() {
   socket.emit('updateLightStatus');
 };
 
-const tilt = $('.js-tilt').tilt({
-    scale: 1.2,
-    disableAxis: "x",
+$(document).ready(function() {
+  $('span').hover(
+    function () {
+      //show its submenu
+      $(".blind-slider").slideToggle();
+    },
+    function () {
+      //hide its submenu
+      $(".blind-slider").slideToggle();
+    });
+
 });
 
-
-//For some reason, using type="module" while including in index.html breaks things.
-//This fix has to be done all globak functions
-window.takePhoto = takePhoto;
-window.openNav = openNav;
-window.closeNav = closeNav;
+const tilt = $('.js-tilt').tilt({
+    scale: 1.2,
+    disableAxis: x,
+});
