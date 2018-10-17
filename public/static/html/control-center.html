@@ -6,6 +6,12 @@
 <body>
 
 
+  <!--
+  ===========================
+      Phillips Hue Bulbs
+  ===========================
+  -->
+
 <div class="row main-content">
   <div class="col" style="">
     <div class="row"><h3 >Phillips Hue Lights</h3><div
@@ -106,6 +112,12 @@ class="settings-hub"><span onclick="updateLightStatus()" class="fa fa-active fa-
   </div>
 </div>
 
+<!--
+===========================
+    TP-Link Smart Plugs
+===========================
+-->
+
 <div class="row main-content">
   <div class="col">
     <div class="row"><h3>TP-Link Smart Plugs </h3> <div class="settings-hub"><span onclick="updateRGBStripStatus()" class="fa fa-active fa-rotate-right"></span><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#rgb-strip-settings"></span></div></div>
@@ -119,6 +131,11 @@ class="settings-hub"><span onclick="updateLightStatus()" class="fa fa-active fa-
 </div>
 </div>
 
+<!--
+===========================
+    Arduino/Stepper Motor
+===========================
+-->
 
 <div class="row main-content">
   <div class="col">
@@ -130,6 +147,12 @@ class="settings-hub"><span onclick="updateLightStatus()" class="fa fa-active fa-
   <h3>Desktop Control (soon) </h3>
 </div>
 
+<!--
+===========================
+    WS2812b LED Strip
+===========================
+-->
+
 <div class="row main-content">
   <div class="col">
     <div class="row" data-toggle="collapse" href="#pixelCollapse"><h3>RGB Strips</h3><div class="settings-hub"><span onclick="updateRGBStripStatus()" class="fa fa-active fa-rotate-right"></span><span class="fa fa-cog fa-active settings-button" data-toggle="modal" data-target="#rgb-strip-settings"></span></div></div>
@@ -138,6 +161,11 @@ class="settings-hub"><span onclick="updateLightStatus()" class="fa fa-active fa-
     </div>
 
     <div class="row panel-collapse collapse" id="pixelCollapse">
+      <div class="col">
+        <input type="range" min="0" max="255" ng-model="pixelRed" ng-change="updateLedArray()" class="slider redSlider"/>
+        <input type="range" min="0" max="255" ng-model="pixelGreen" ng-change="updateLedArray()" class="slider greenSlider"/>
+        <input type="range" min="0" max="255" ng-model="pixelBlue" ng-change="updateLedArray()" class="slider blueSlider"/>
+      </div>
     <div class="col">
       <div class="row">
       <div class="col-sm-3">
@@ -207,11 +235,7 @@ class="settings-hub"><span onclick="updateLightStatus()" class="fa fa-active fa-
         </div>
       </div>
     </div>
-      <div class="col">
-        <input type="range" min="0" max="255" ng-model="pixelRed" ng-change="updateLedArray()" class="slider redSlider"/>
-        <input type="range" min="0" max="255" ng-model="pixelGreen" ng-change="updateLedArray()" class="slider greenSlider"/>
-        <input type="range" min="0" max="255" ng-model="pixelBlue" ng-change="updateLedArray()" class="slider blueSlider"/>
-      </div>
+
       <div class="col-sm-3">
         <div class="row" style="height: 80%">
           <div style="width: 100%; height: 100%; background: rgb({{pixelRed}},{{pixelGreen}},{{pixelBlue}});"></div>

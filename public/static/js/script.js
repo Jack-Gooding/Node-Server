@@ -46,11 +46,12 @@ function closeNav() {// Set the width of the side navigation to 0
     document.getElementById("mySidenav").style.width = "0";
 };
 
+//Returns random Int between 0-255
 let randRGBCol = function () {
   return Math.floor(Math.random()*255);
 };
 
-
+// Allow page to detect Shift/Alt/CTRL presses
 var ctrlIsPressed = false;
 var shiftIsPressed = false;
 var altIsPressed = false;
@@ -70,11 +71,14 @@ $(document).on({
     },
 });
 
-$(window).blur(function(){
+$(window).blur(function(){ // Resets button presses if page loses focus
   ctrlIsPressed = false;
   shiftIsPressed = false;
   altIsPressed = false;
 });
+
+
+//Angular config
 
 var AngularApp = angular.module('Angular', ["ngRoute"]);
 var extScope;
@@ -102,7 +106,7 @@ AngularApp.controller('AngularApp', function($scope, $interval, $compile) {
   $scope.brightness = 80;
   $scope.brightnessSliderDisabled = false;
   $scope.device = 3;
-  $scope.devices = ( !$scope.debug ) ? [{
+  $scope.devices = ( !$scope.debug ) ? [{ //Initial example Phillips Bulb state
     "name":"loading...",
     "type":"Extended color light",
     "id":0,
